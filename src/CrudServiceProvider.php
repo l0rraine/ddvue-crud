@@ -68,7 +68,7 @@ class CrudServiceProvider extends ServiceProvider
 
         // register their aliases
         $loader = \Illuminate\Foundation\AliasLoader::getInstance();
-        $loader->alias('CRUD', \Qla\CRUD\CrudServiceProvider::class);
+        $loader->alias('CRUD', \DDVue\CRUD\CrudServiceProvider::class);
         $loader->alias('Form', \Collective\Html\FormFacade::class);
         $loader->alias('Html', \Collective\Html\HtmlFacade::class);
 
