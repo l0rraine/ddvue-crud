@@ -1,6 +1,6 @@
 <?php
 
-namespace Qla\Crud\app\Models;
+namespace DDVue\Crud\app\Models;
 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Model;

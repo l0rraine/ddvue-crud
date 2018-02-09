@@ -6,7 +6,7 @@
  * Time: 10:50
  */
 
-namespace Qla\Crud\app\Http\Helpers;
+namespace DDVue\Crud\app\Http\Helpers;
 
 /**
  * Created by PhpStorm.

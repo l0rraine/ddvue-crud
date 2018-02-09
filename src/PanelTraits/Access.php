@@ -6,7 +6,7 @@
  * Time: 15:39
  */
 
-namespace Qla\Crud\PanelTraits;
+namespace DDVue\Crud\PanelTraits;
 
 trait Access
 {

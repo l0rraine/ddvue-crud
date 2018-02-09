@@ -6,14 +6,14 @@
  * Time: 9:59
  */
 
-namespace Qla\Crud\Controllers;
+namespace DDVue\Crud\Controllers;
 
 use Illuminate\Pagination\Paginator;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-use Qla\Crud\Controllers\Features\SaveActions;
-use Qla\Crud\CrudPanel;
+use DDVue\Crud\Controllers\Features\SaveActions;
+use DDVue\Crud\CrudPanel;
 
 
 class CrudController extends BaseController

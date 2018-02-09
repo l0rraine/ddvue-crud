@@ -6,7 +6,7 @@
  * Time: 8:26
  */
 
-namespace Qla\Crud\Controllers\Features;
+namespace DDVue\Crud\Controllers\Features;
 
 trait SaveActions
 {

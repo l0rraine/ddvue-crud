@@ -81,12 +81,12 @@ resizeFrame();
 </script>
 @endpush
 @push('css')
-<link href="{{ asset('vendor/qla/js/select2-4.0.3/css/select2.css') }}" rel="stylesheet"/>
-<link rel="stylesheet" href="{{ asset('vendor/qla/js/jquery-gritter/jquery.gritter.min.css') }}"/>
+<link href="{{ asset('vendor/ddvue/js/select2-4.0.3/css/select2.css') }}" rel="stylesheet"/>
+<link rel="stylesheet" href="{{ asset('vendor/ddvue/js/jquery-gritter/jquery.gritter.min.css') }}"/>
 @endpush
 
 @push('js')
-<script>window.Select2 || document.write('<script src="{{ asset('vendor/qla/js/select2-4.0.3/js/select2.full.min.js') }}"><\/script><script src="{{ asset('vendor/qla/js/select2-4.0.3/js/i18n/zh-CN.js') }}"><\/script>')</script>
-<script src="{{ asset('vendor/qla/js/jquery-gritter/jquery.gritter.min.js') }}"></script>
+<script>window.Select2 || document.write('<script src="{{ asset('vendor/ddvue/js/select2-4.0.3/js/select2.full.min.js') }}"><\/script><script src="{{ asset('vendor/ddvue/js/select2-4.0.3/js/i18n/zh-CN.js') }}"><\/script>')</script>
+<script src="{{ asset('vendor/ddvue/js/jquery-gritter/jquery.gritter.min.js') }}"></script>
 @endpush
 

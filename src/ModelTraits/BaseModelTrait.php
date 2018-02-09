@@ -6,7 +6,7 @@
  * Time: 21:51
  */
 
-namespace Qla\Crud\ModelTraits;
+namespace DDVue\Crud\ModelTraits;
 
 trait BaseModelTrait
 {

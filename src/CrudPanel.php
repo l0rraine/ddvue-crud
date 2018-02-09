@@ -1,9 +1,9 @@
 <?php
 
-namespace Qla\Crud;
+namespace DDVue\Crud;
 
-use Qla\Crud\PanelTraits\Access;
-use Qla\Crud\app\Models\BaseClassifiedModel;
+use DDVue\Crud\PanelTraits\Access;
+use DDVue\Crud\app\Models\BaseClassifiedModel;
 
 class CrudPanel
 {
