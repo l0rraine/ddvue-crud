@@ -27,7 +27,7 @@ class CrudServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/resources/views' => resource_path('views/vendor/ddvue/crud'),
             __DIR__.'/public' => public_path('vendor/ddvue'),
-        ], 'ddvue');
+        ], 'ddvue-crud');
 
 
 
