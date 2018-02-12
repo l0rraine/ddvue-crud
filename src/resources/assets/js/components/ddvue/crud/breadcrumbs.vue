@@ -21,7 +21,6 @@
         },
         methods: {
             handleClick(link) {
-                console.log(link);
                 this.$emit('onClick',link);
             }
         }
