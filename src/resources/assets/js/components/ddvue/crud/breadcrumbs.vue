@@ -1,13 +1,12 @@
 <template>
-    <el-row type="flex" class="row-bg" justify="space-between">
+    <el-row type="flex" class="row-bg" justify="space-between" style="border-bottom: 1px solid #E5E5E5;">
         <el-col :xs="22" :sm="18" :md="10" :lg="12" :xl="12">
-            <h3 style="padding:0 20px;">
-                {{ title }}
-            </h3>
+            <h2>{{ data.title }}<small>{{ data.subtitle }}</small></h2>
         </el-col>
-        <el-col :span="4">
-            <el-breadcrumb separator-class="el-icon-arrow-right" v-for="(item,index) in items" :key="index">
-                <el-breadcrumb-item @click.native="handleClick(item.link)">首页</el-breadcrumb-item>
+        <el-col>
+            <el-breadcrumb separator-class="el-icon-arrow-right">
+                <el-breadcrumb-item  @click.native="gotoWelcome()">首页</el-breadcrumb-item>
+                <el-breadcrumb-item  v-for="(item,index) in data.items" :key="index" @click.native="handleClick(item.link)">{{ item.title }}</el-breadcrumb-item>
             </el-breadcrumb>
         </el-col>
     </el-row>
@@ -16,15 +15,23 @@
     export default {
         name: 'DdvCrudBreadcrumbs',
         props: {
-            items: Array,
-            title: String
+            data: Object
         },
         methods: {
             handleClick(link) {
-                this.$emit('onClick',link);
+                this.$emit('onItemClick',link);
+            },
+            gotoWelcome(){
+                const link = `${window.config.dashboard_url_prefix}/welcome`;
+                console.log(link);
+                this.$emit('onItemClick',link);
             }
         }
     }
 </script>
-<style>
+<style scoped>
+    .el-breadcrumb {
+        float:right !important;
+        line-height: 60px;
+    }
 </style>
