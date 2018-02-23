@@ -12,6 +12,7 @@
         name: 'DdvCrudForm',
         props: {
             url: String,
+            model: Object
         },
         methods: {
             onSubmit(link) {
