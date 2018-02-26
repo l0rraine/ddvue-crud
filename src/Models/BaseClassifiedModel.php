@@ -14,7 +14,7 @@ class BaseClassifiedModel extends Model
         parent::boot();
 
         self::saved(function ($model) {
-            $model->calClassList($model->id);
+            $model->calClassList($model->id,1);
         });
     }
 
@@ -97,7 +97,7 @@ class BaseClassifiedModel extends Model
      */
     public function getSelectArrayByParentId($pid = 0, $show_root = false)
     {
-        $arr = $this->getAllByParentId($pid, '', $show_root);
+        $arr = $this->getAllByParentId($pid,  $show_root);
         if ($pid == 0 && $show_root) {
             $pid = -1;
         }
@@ -106,11 +106,23 @@ class BaseClassifiedModel extends Model
         return $tree;
     }
 
+
+    /**
+     * 在buildtree方法中对数组进行特殊处理
+     * @param array $arr
+     *
+     * @return array
+     */
+    public function extraActionWhenRecurse(array $arr){
+        return $arr;
+    }
+
     private function buildTree(array $elements, $parentId = 0)
     {
         $branch = [];
 
         foreach ($elements as $element) {
+            $element = $this->extraActionWhenRecurse($element);
             if ($element['parent_id'] == $parentId) {
                 $children            = $this->buildTree($elements, $element['id']);
                 $element['children'] = $children;
@@ -193,6 +205,8 @@ class BaseClassifiedModel extends Model
 
         return $classList;
     }
+
+
 
     public static function setAllClassList()
     {

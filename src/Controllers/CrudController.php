@@ -63,13 +63,14 @@ class CrudController extends BaseController
 
     public function setup()
     {
+        $this->crud->getNavigator();
     }
 
     public function getIndex()
     {
         $this->data['crud'] = $this->crud;
 
-        return view('crud::list', $this->data);
+        return view($this->crud->viewName . '.list', $this->data);
     }
 
     public function makeIndexJson($hasPaginator = false, $useEloquentModel = true)
@@ -86,7 +87,7 @@ class CrudController extends BaseController
         return json_encode($this->data);
     }
 
-    public function makePaginatorDataFromEloquent($data)
+    private function makePaginatorDataFromEloquent($data)
     {
         // 进行分页
         if (isset($_GET['offset'])) {
@@ -118,7 +119,7 @@ class CrudController extends BaseController
         }
     }
 
-    public function makePaginatorDataFromCollection(Collection $data)
+    private function makePaginatorDataFromCollection(Collection $data)
     {
         if (isset($_GET['offset'])) {
 
@@ -156,7 +157,7 @@ class CrudController extends BaseController
     {
         $this->data['crud'] = $this->crud;
 
-        return view('crud::create', $this->data);
+        return view($this->crud->viewName . '.store', $this->data);
     }
 
     public function storeCrud(Request $request = null)
@@ -219,7 +220,6 @@ class CrudController extends BaseController
 
     public function postCustomEdit($id = null)
     {
-
         return $this->performSaveAction();
     }
 

@@ -1,8 +1,6 @@
 <template>
     <el-container direction="vertical">
-        <ddv-crud-breadcrumbs @onItemClick="handleBreadcrumbsClick" :data="breadcrumbData"></ddv-crud-breadcrumbs>
-        <hr />
-
+        <ddv-crud-breadcrumbs @onItemClick="handleBreadcrumbsClick" :config="breadcrumbData"></ddv-crud-breadcrumbs>
         <slot name="content"></slot>
     </el-container>
 </template>
@@ -15,15 +13,8 @@
         methods: {
             handleBreadcrumbsClick(url) {
                 const that = this;
-                this.$http.get(url).then(function (response) {
-                    const v = response.data;
-                    let MyComponent = Vue.extend({
-                        template: v
-                    });
-                    let component = new MyComponent().$mount();
-                    that.$el.innerHTML = '';
-                    that.$el.appendChild(component.$el)
-                });
+                that.$el.innerHTML = '';
+                that.insertEl(url);
             }
         }
     }

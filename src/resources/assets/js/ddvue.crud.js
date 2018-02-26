@@ -17,6 +17,41 @@ Vue.use(ElementUI);
 
 Vue.prototype.$http = axios;
 
+Vue.mixin({
+    methods:{
+        sendTo(id,url,callback=function(){}) {
+            this.$http.get(url).then(function (response) {
+                const v = response.data;
+                let MyComponent = Vue.extend({
+                    template: v
+                });
+                let component = new MyComponent().$mount();
+                document.getElementById(id).innerHTML = '';
+                document.getElementById(id).appendChild(component.$el)
+                callback();
+            });
+        },
+        insertEl(url){
+            const that = this;
+            if (url === '') return;
+            that.$http.get(url).then(function (response) {
+                const v = response.data;
+                let MyComponent = Vue.extend({
+                    template: v
+                });
+                let component = new MyComponent().$mount();
+                that.$el.appendChild(component.$el)
+            });
+        },
+        getUrlPrefix(){
+            return window.config.dashboard_url_prefix;
+        },
+        getMainUrl(){
+            return window.config.main_url;
+        }
+    }
+
+});
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -24,12 +59,12 @@ Vue.prototype.$http = axios;
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-import DdvCrudBreadcrumbs from './components/ddvue/crud/breadcrumbs.vue';
+import DdvCrudBreadcrumbs from './components/ddvue/crud/partials/breadcrumbs.vue';
 Vue.component(DdvCrudBreadcrumbs.name, DdvCrudBreadcrumbs);
 
 
-import DdvCrudForm from './components/ddvue/crud/form.vue';
-Vue.component(DdvCrudForm.name, DdvCrudForm);
+import DdvCrudDatatable from './components/ddvue/crud/partials/datatable.vue';
+Vue.component(DdvCrudDatatable.name, DdvCrudDatatable);
 
 import DdvCrudMain from './components/ddvue/crud/main.vue';
 Vue.component(DdvCrudMain.name, DdvCrudMain);
@@ -37,7 +72,5 @@ Vue.component(DdvCrudMain.name, DdvCrudMain);
 import DdvCrudList from './components/ddvue/crud/list.vue';
 Vue.component(DdvCrudList.name, DdvCrudList);
 
-
-
-
-
+import DdvDatatableRecursiveTitle from './components/ddvue/crud/partials/recursive-title.vue';
+Vue.component(DdvDatatableRecursiveTitle.name, DdvDatatableRecursiveTitle);
