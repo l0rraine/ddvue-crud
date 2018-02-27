@@ -31,8 +31,7 @@ Vue.mixin({
                 callback();
             });
         },
-        insertEl(url){
-            const that = this;
+        insertEl(that, url){
             if (url === '') return;
             that.$http.get(url).then(function (response) {
                 const v = response.data;
@@ -59,18 +58,16 @@ Vue.mixin({
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-import DdvCrudBreadcrumbs from './components/ddvue/crud/partials/breadcrumbs.vue';
-Vue.component(DdvCrudBreadcrumbs.name, DdvCrudBreadcrumbs);
-
-
 import DdvCrudDatatable from './components/ddvue/crud/partials/datatable.vue';
 Vue.component(DdvCrudDatatable.name, DdvCrudDatatable);
 
-import DdvCrudMain from './components/ddvue/crud/main.vue';
-Vue.component(DdvCrudMain.name, DdvCrudMain);
 
 import DdvCrudList from './components/ddvue/crud/list.vue';
 Vue.component(DdvCrudList.name, DdvCrudList);
 
-import DdvDatatableRecursiveTitle from './components/ddvue/crud/partials/recursive-title.vue';
+
+import DdvDatatableRecursiveTitle from './components/ddvue/crud/partials/datatable-recursive-title.vue';
 Vue.component(DdvDatatableRecursiveTitle.name, DdvDatatableRecursiveTitle);
+
+import DdvCrudSelectRecursiveOption from './components/ddvue/crud/partials/select-recursive-option.vue'
+Vue.component(DdvCrudSelectRecursiveOption.name, DdvCrudSelectRecursiveOption);

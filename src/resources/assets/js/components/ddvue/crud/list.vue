@@ -41,7 +41,7 @@
         },
         methods: {
             handleAdd: function () {
-                console.log('pressed add button');
+                this.$emit('onAdd');
             }
         }
     }

@@ -160,7 +160,7 @@ class CrudController extends BaseController
         return view($this->crud->viewName . '.store', $this->data);
     }
 
-    public function storeCrud(Request $request = null)
+    public function storeCrud()
     {
         if (isset($this->validator)) {
             if ($this->validator->fails()) {
@@ -170,7 +170,7 @@ class CrudController extends BaseController
 
 
         $model = $this->crud->model->newInstance();
-        $saved = $model->fill($this->data)->save();
+        $saved = $model->fill($this->request->all())->save();
         if ($saved) {
             $id = $model->id;
             $model->doAfterCU($this->doAfterCrudData);
@@ -190,7 +190,7 @@ class CrudController extends BaseController
     }
 
 
-    public function updateCrud(Request $request = null)
+    public function updateCrud()
     {
         if (isset($this->validator)) {
             if ($this->validator->fails()) {
@@ -199,7 +199,7 @@ class CrudController extends BaseController
         }
 
         $model = $this->crud->model->find($this->data['id']);
-        $saved = $model->update($this->data);
+        $saved = $model->update($this->request->all());
         if ($saved) {
             $id = $model->id;
             $model->doAfterCU($this->doAfterCrudData);
