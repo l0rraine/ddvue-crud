@@ -44,7 +44,6 @@
                 pageSize: 10,
                 popSelectEvent: true,
                 pageSizesOrigin: [10, 20, 50],
-                count:0
 
             }
         },
@@ -91,10 +90,6 @@
             this.getData();
         },
         methods: {
-            onSubmit(link) {
-                console.log(link);
-                this.$emit('onSubmit', link);
-            },
             getData() {
                 const that = this;
                 that.$http.get(that.dataUrl, that.param).then(function (response) {
@@ -120,7 +115,6 @@
                 this.$emit('onSelection', val);
             },
             doRecursiveSelect(row,isCheck) {
-                console.log(this.count++);
                 const that  = this,
                     table = that.$refs['multipleTable'];
                 for (let i = 0; i < that.tableData.length; i++) {
