@@ -50,7 +50,6 @@ class CrudController extends BaseController
             // call the setup function inside this closure to also have the request there
             // this way, developers can use things stored in session (auth variables, etc)
             $this->middleware(function ($request, $next) {
-                $this->request       = $request;
                 $this->crud->request = $request;
                 $this->setup();
 
@@ -73,7 +72,7 @@ class CrudController extends BaseController
         return view($this->crud->viewName . '.list', $this->data);
     }
 
-    public function makeIndexJson($hasPaginator = false, $useEloquentModel = true)
+    public function makeIndexJson($hasPaginator = false, $useEloquentModel = false)
     {
 
         if ($hasPaginator) {
@@ -90,17 +89,18 @@ class CrudController extends BaseController
     private function makePaginatorDataFromEloquent($data)
     {
         // 进行分页
-        if (isset($_GET['offset'])) {
-            $offset      = $_GET['offset'];
+        if (isset($_GET['page'])) {
+
             $limit       = $_GET['limit'];
-            $currentPage = $offset / $limit + 1;
+            $currentPage = $_GET['page'];
+            $offset      = ($currentPage - 1) * $limit;
 
             Paginator::currentPageResolver(function () use ($currentPage) {
                 return $currentPage;
             });
 
 
-            $data       = $data->paginate($_GET['limit'])->toArray();
+            $data       = $data->paginate($limit)->toArray();
             $r          = ['rows' => []];
             $r['total'] = $data['total'];
 
@@ -121,15 +121,15 @@ class CrudController extends BaseController
 
     private function makePaginatorDataFromCollection(Collection $data)
     {
-        if (isset($_GET['offset'])) {
+        if (isset($_GET['page'])) {
 
             $total = $data->count();
 
             $temp = $data;
 
-            $offset      = $_GET['offset'];
             $limit       = $_GET['limit'];
-            $currentPage = $offset / $limit + 1;
+            $currentPage = $_GET['page'];
+            $offset      = ($currentPage - 1) * $limit;
 
             $temp = $temp->forPage($currentPage, $limit);
 
@@ -155,27 +155,26 @@ class CrudController extends BaseController
 
     public function getAdd()
     {
-        $this->data['crud'] = $this->crud;
+        $this->data['crud']  = $this->crud;
+        $this->data['title'] = '新增' . $this->crud->title;
 
         return view($this->crud->viewName . '.store', $this->data);
     }
 
-    public function storeCrud()
+    public function storeCrud(Request $request)
     {
-        if (isset($this->validator)) {
-            if ($this->validator->fails()) {
-                return redirect()->to($this->getRedirectUrl())->withInput()->withErrors($this->validator)->withInput();
-            }
-        }
 
+        $data            = $request->all();
+        $this->validator = \Validator::make($data, $this->crud->model::rules(), $this->crud->model::messages());
+        $this->validator->validate();
 
         $model = $this->crud->model->newInstance();
-        $saved = $model->fill($this->request->all())->save();
+        $saved = $model->fill($data)->save();
         if ($saved) {
             $id = $model->id;
             $model->doAfterCU($this->doAfterCrudData);
 
-            return $this->performSaveAction($id);
+            return json_encode(['success' => true, 'id' => $id]);
         } else {
             return redirect()->to($this->getRedirectUrl())->withInput()->withErrors(['0' => '新建' . $this->crud->title . '时出现错误，请联系管理员'],
                 $this->errorbag());
@@ -185,26 +184,26 @@ class CrudController extends BaseController
     public function getEdit($id)
     {
         $this->data['crud'] = $this->crud;
-
-        return view('crud::update', $this->data);
+        $this->data['edit'] = true;
+        $this->data['title'] = '编辑' . $this->crud->title;
+        return view($this->crud->viewName . '.store', $this->data);
     }
 
 
-    public function updateCrud()
+    public function updateCrud(Request $request)
     {
-        if (isset($this->validator)) {
-            if ($this->validator->fails()) {
-                return redirect()->to($this->getRedirectUrl())->withInput()->withErrors($this->validator)->withInput();
-            }
-        }
+        $data            = $request->all();
+        $this->validator = \Validator::make($data, $this->crud->model::rules(), $this->crud->model::messages());
+        $this->validator->validate();
 
-        $model = $this->crud->model->find($this->data['id']);
-        $saved = $model->update($this->request->all());
+
+        $model = $this->crud->model->find($data['id']);
+        $saved = $model->update($data);
         if ($saved) {
             $id = $model->id;
             $model->doAfterCU($this->doAfterCrudData);
 
-            return $this->performSaveAction($id);
+            return json_encode(['success' => true]);//$this->performSaveAction($id);
         } else {
             return redirect()->to($this->getRedirectUrl())->withInput()->withErrors(['0' => '修改' . $this->crud->title . '信息时出现错误，请联系管理员'],
                 $this->errorbag());
@@ -223,9 +222,9 @@ class CrudController extends BaseController
         return $this->performSaveAction();
     }
 
-    public function del($selectionJson)
+    public function del(Request $request)
     {
-        $data         = json_decode($selectionJson);
+        $data         = $request->all();
         $success      = true;
         $successCount = 0;
         $failureCount = 0;

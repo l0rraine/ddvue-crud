@@ -89,6 +89,10 @@
         created: function () {
             this.getData();
         },
+        mounted(){
+            const that = this;
+            that.$bus.on('crudListTableDataLoad',that.getData)
+        },
         methods: {
             getData() {
                 const that = this;
@@ -102,6 +106,10 @@
                     });
                     if (that.total === -1)
                         that.tableData = response.data;
+                    this.$emit('onDataLoad', {
+                        data: that.tableData,
+                        total: that.total
+                    });
                 }).catch(function (response) {
 
                 });
@@ -114,17 +122,17 @@
                 this.multipleSelection = val;
                 this.$emit('onSelection', val);
             },
-            doRecursiveSelect(row,isCheck) {
+            doRecursiveSelect(row, isCheck) {
                 const that  = this,
-                    table = that.$refs['multipleTable'];
+                      table = that.$refs['multipleTable'];
                 for (let i = 0; i < that.tableData.length; i++) {
                     const data = that.tableData[i];
-                    if(isCheck){
+                    if (isCheck) {
                         if (data.class_list.indexOf(`,${row.id},`) !== -1 && data.class_layer > row.class_layer) {
                             table.toggleRowSelection(data, true);
                         }
-                    }else{
-                        if(row.class_list.indexOf(`,${data.id},`) !==-1 ){
+                    } else {
+                        if (row.class_list.indexOf(`,${data.id},`) !== -1) {
                             table.toggleRowSelection(data, false);
                         }
                         if (data.class_list.indexOf(`,${row.id},`) !== -1 && data.class_layer > row.class_layer) {
@@ -147,7 +155,7 @@
                             }
                         });
 
-                        this.doRecursiveSelect(row,isCheck);
+                        this.doRecursiveSelect(row, isCheck);
                         this.popSelectEvent = true;
                     }
                 }

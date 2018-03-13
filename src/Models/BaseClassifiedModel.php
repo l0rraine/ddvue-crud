@@ -9,14 +9,14 @@ use Illuminate\Support\Facades\DB;
 
 class BaseClassifiedModel extends Model
 {
-    protected static function boot()
-    {
-        parent::boot();
-
-        self::saved(function ($model) {
-            $model->calClassList($model->id,1);
-        });
-    }
+//    protected static function boot()
+//    {
+//        parent::boot();
+//
+//        self::saved(function (BaseClassifiedModel $model) {
+//            $model->setAllClassList();
+//        });
+//    }
 
 
     /**
@@ -79,7 +79,7 @@ class BaseClassifiedModel extends Model
         foreach ($data as $key => $value) {
             if ($value['parent_id'] == $pid) {
                 $arrTree[] = $value;
-                unset($data[$key]); //注销当前节点数据，减少已无用的遍历
+                unset($data[ $key ]); //注销当前节点数据，减少已无用的遍历
                 $this->getAllByParentIdRecursion($value['id'], $data);
             }
         }
@@ -97,7 +97,7 @@ class BaseClassifiedModel extends Model
      */
     public function getSelectArrayByParentId($pid = 0, $show_root = false)
     {
-        $arr = $this->getAllByParentId($pid,  $show_root);
+        $arr = $this->getAllByParentId($pid, $show_root);
         if ($pid == 0 && $show_root) {
             $pid = -1;
         }
@@ -109,12 +109,18 @@ class BaseClassifiedModel extends Model
 
     /**
      * 在buildtree方法中对数组进行特殊处理
+     *
      * @param array $arr
      *
      * @return array
      */
-    public function extraActionWhenRecurse(array $arr){
+    public function extraActionWhenRecurse(array $arr)
+    {
         return $arr;
+    }
+
+    public function extraCondition(array $arr){
+        return true;
     }
 
     private function buildTree(array $elements, $parentId = 0)
@@ -122,12 +128,15 @@ class BaseClassifiedModel extends Model
         $branch = [];
 
         foreach ($elements as $element) {
-            $element = $this->extraActionWhenRecurse($element);
-            if ($element['parent_id'] == $parentId) {
-                $children            = $this->buildTree($elements, $element['id']);
-                $element['children'] = $children;
-                $branch[]            = $element;
+            if($this->extraCondition($element)){
+                $element = $this->extraActionWhenRecurse($element);
+                if ($element['parent_id'] == $parentId) {
+                    $children            = $this->buildTree($elements, $element['id']);
+                    $element['children'] = $children;
+                    $branch[]            = $element;
+                }
             }
+
         }
 
         return $branch;
@@ -197,15 +206,12 @@ class BaseClassifiedModel extends Model
                 'class_list'  => $classList,
                 'class_layer' => mb_substr_count($classList, ',') - 1
             ]);
-
             //$this->update(['class_list'=>$classList]);
             return $classList;
         }
         $classList = $this->calClassList($pid);
-
         return $classList;
     }
-
 
 
     public static function setAllClassList()
@@ -223,5 +229,9 @@ class BaseClassifiedModel extends Model
     public function getQueueableConnection()
     {
         // TODO: Implement getQueueableConnection() method.
+    }
+
+    public function doAfterCU($data){
+        self::setAllClassList();
     }
 }

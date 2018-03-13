@@ -22,9 +22,12 @@
                 }
             },
             iconClass: function () {
-                for (const key in this.item) {
-                    if(key===this.icon && this.item[key]!=='') {
-                        return this.item[key];
+                const that=this;
+                for (let key in that.item) {
+                    if (key === that.icon) {
+                        let v = that.item[key] || '';
+                        if (v.trim() !== '')
+                            return that.item[key];
                     }
                 }
                 return 'folder-open';
