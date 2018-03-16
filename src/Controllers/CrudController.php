@@ -8,6 +8,7 @@
 
 namespace DDVue\Crud\Controllers;
 
+use DDVue\Crud\app\Models\QueryParam;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\Paginator;
@@ -59,13 +60,13 @@ class CrudController extends BaseController
             });
 
             $this->crud->saveActions = $this->getSaveAction();
-            $this->makeQueryParam();
         }
     }
 
     public function setup()
     {
         $this->crud->getNavigator();
+        $this->crud->queryParams['model']  = $this->crud->modelName;
     }
 
     public function getIndex()
@@ -126,48 +127,45 @@ class CrudController extends BaseController
         return $data;
     }
 
-    public function makeQueryParam()
-    {
-
-    }
-
     public function query(Request $request)
     {
         $queryString = $request->queryString;
         $data        = [];
         foreach ($this->crud->queryParams['groups'] as $param) {
+            /** @var QueryParam $param */
+
             /** @var Model $model */
             $model = app($this->crud->queryParams['model']);
 
-            if (empty($param['join'])) {
-                $model = $model->where($param['columns'][0], 'like', '%' . $queryString . '%');
-                for ($i = 1; $i < count($param['columns']); $i++) {
-                    $model = $model->orWhere($param['columns'][ $i ], 'like', '%' . $queryString . '%');
+            if (empty($param->join)) {
+                $model = $model->where($param->columns[0], 'like', '%' . $queryString . '%');
+                for ($i = 1; $i < count($param->columns); $i++) {
+                    $model = $model->orWhere($param->columns[ $i ], 'like', '%' . $queryString . '%');
                 }
             } else {
-                $model = $model->whereHas($param['join'], function (Builder $query) use ($param, $queryString) {
-                    $query->where($param['columns'][0], 'like', '%' . $queryString . '%');
-                    for ($i = 1; $i < count($param['columns']); $i++) {
-                        $query->orWhere($param['columns'][ $i ], 'like', '%' . $queryString . '%');
+                $model = $model->whereHas($param->join, function (Builder $query) use ($param, $queryString) {
+                    $query->where($param->columns[0], 'like', '%' . $queryString . '%');
+                    for ($i = 1; $i < count($param->columns); $i++) {
+                        $query->orWhere($param->columns[ $i ], 'like', '%' . $queryString . '%');
                     }
                 });
             }
 
             $d = $model->get()->map(function ($item) use ($param) {
                 $map          = [];
-                $map['group'] = $param['title'];
+                $map['group'] = $param->title;
                 $map['id']    = $item->id;
-                if (empty($param['join'])) {
+                if (empty($param->join)) {
                     $map['id']  = $item->id;
                     $map['key'] = 'id';
                 } else {
-                    $j          = $param['join'];
+                    $j          = $param->join;
                     $map['id']  = $item->$j->id;
-                    $map['key'] = $param['key'];
+                    $map['key'] = $param->key;
                     $item       = $item->$j;
                 }
 
-                foreach ($param['maps'] as $k => $m) {
+                foreach ($param->maps as $k => $m) {
                     $a = explode('||', $m);
                     $v = '';
                     foreach ($a as $c) {
@@ -185,7 +183,7 @@ class CrudController extends BaseController
             })->unique('id');
 
             if (count($d)) {
-                $data[] = ['group' => $param['title'], 'items' => $d];
+                $data[] = ['group' => $param->title, 'items' => $d];
             }
 
         }

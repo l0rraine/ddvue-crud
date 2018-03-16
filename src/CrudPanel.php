@@ -2,6 +2,7 @@
 
 namespace DDVue\Crud;
 
+use DDVue\Crud\app\Models\QueryParam;
 use DDVue\Crud\PanelTraits\Access;
 use DDVue\Crud\app\Models\BaseClassifiedModel;
 
@@ -68,11 +69,11 @@ class CrudPanel
 
     public $request;
 
+
     /**
-     * 查询参数 包含key：model,title,columns,maps
-     * @var array
+     * @var array 查询参数
      */
-    public $queryParams = [];
+    public $queryParams = ['model' => '', 'groups' => []];
 
     /**
      * Set the route for this CRUD.
@@ -143,7 +144,7 @@ class CrudPanel
         }
 
         $this->modelName = $model_name;
-        $this->model = new $model_name();
+        $this->model     = new $model_name();
     }
 
     public function getIndexUrl()
@@ -191,5 +192,13 @@ class CrudPanel
     public function setNavigator($navigator)
     {
         $this->navigator = $navigator;
+    }
+
+    /**
+     * @param QueryParam $param 添加查询参数
+     */
+    public function addQueryParam(QueryParam $param)
+    {
+        array_push($this->queryParams['groups'], $param);
     }
 }
