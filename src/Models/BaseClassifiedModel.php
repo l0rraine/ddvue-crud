@@ -221,16 +221,6 @@ class BaseClassifiedModel extends Model
         }
     }
 
-    /**
-     * Get the connection of the entity.
-     *
-     * @return string|null
-     */
-    public function getQueueableConnection()
-    {
-        // TODO: Implement getQueueableConnection() method.
-    }
-
     public function doAfterCU($data){
         self::setAllClassList();
     }

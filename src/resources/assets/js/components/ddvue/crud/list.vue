@@ -14,19 +14,52 @@
 
             </el-col>
             <el-col :span="6">
-                <el-input v-model="search" placeholder="请输入搜索内容"></el-input>
+                <!--<el-autocomplete v-model="search" ref="auto"-->
+                <!--placeholder="请输入搜索内容"-->
+                <!--prefix-icon="el-icon-search"-->
+                <!--@select="handleSearch"-->
+                <!--:debounce="500"-->
+                <!--:trigger-on-focus="false"-->
+                <!--:fetch-suggestions="querySearch">-->
+                <!--<template slot="suffix">-->
+                <!--<a href="#" @click="clearQuery" v-show="showResetIcon"><i-->
+                <!--class="el-input__icon el-icon-circle-close el-input__clear"></i></a>-->
+                <!--</template>-->
+                <!--</el-autocomplete>-->
+                <el-select
+                        v-model="search" ref="search"
+                        filterable
+                        remote
+                        clearable
+                        reserve-keyword
+                        placeholder="请输入关键词"
+                        :remote-method="querySearch"
+                        @change="handleSearch"
+                        @focus="onSearchFocus"
+                        @clear="clearQuery"
+                        :loading="searchLoading">
+                    <el-option-group ref="resultPopper"
+                                     v-for="group in searchResult"
+                                     :key="group.group"
+                                     :label="group.group">
+                        <el-option
+                                v-for="item in group.items"
+                                :key="item.id"
+                                :label="item.value"
+                                :value="item">
+                        </el-option>
+                    </el-option-group>
+                </el-select>
             </el-col>
             <el-col :span="24" style="margin-top:10px;">
                 <ddv-crud-datatable :dataUrl="tableDataUrl"
                                     :paginate="showTablepagination"
                                     :isRecursive="tableIsRecursive"
-                                    @onDataLoad="onTableLoadData"
                                     @onSelection="handleTableSelectionChange">
                     <slot></slot>
                 </ddv-crud-datatable>
             </el-col>
         </el-row>
-        <div id="dialogContainer"></div>
     </div>
 </template>
 <script>
@@ -38,6 +71,9 @@
                 showEdit: false,
                 showToggle: false,
                 tableSelection: [],
+                filtered: false,
+                searchResult: [],
+                searchLoading: false
             }
         },
         props: {
@@ -61,8 +97,12 @@
             }
 
         },
-        created: function () {
-
+        watch: {
+            search: function (val) {
+                if (val === '') {
+                    this.searchResult = [];
+                }
+            }
         },
         methods: {
             handleAdd: function () {
@@ -74,8 +114,7 @@
             },
             handleTableSelectionChange: function (val) {
                 this.tableSelection = val;
-                if (val.length) this.showToggle = true;
-                else this.showToggle = false;
+                this.showToggle = val.length;
 
                 this.$emit('onTableSelectionChange', val);
 
@@ -83,8 +122,40 @@
             handleExcel: function () {
                 this.$emit('onImport');
             },
-            onTableLoadData(data){
-                this.$emit('onTableLoadData',data);
+            handleSearch: function (item) {
+                this.filtered = true;
+                if (item) {//否则事件会触发2次
+                    this.$eventHub.$emit('crudListTableDataLoad', {
+                        params: {
+                            searchParams: item
+                        }
+                    });
+                }
+
+            },
+            onSearchFocus: function () {
+                if (this.search === '') {
+                    this.searchResult = null;
+                }
+
+            },
+            querySearch: _.debounce(function (queryString) {
+                if (queryString === '') return;
+                const that = this;
+                that.showResetIcon = true;
+                that.$http.post(`${that.getMainUrl()}/query`, {
+                    queryString: queryString
+                }).then(function (response) {
+                    // callback(response.data);
+                    that.searchResult = response.data;
+                });
+            }, 300),
+            clearQuery: function () {
+                this.searchResult = [];
+                if (this.filtered) {
+                    this.$eventHub.$emit('crudListTableDataLoad');
+                    this.filtered = false;
+                }
             }
 
         }

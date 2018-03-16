@@ -7,8 +7,7 @@ use DDVue\Crud\app\Models\BaseClassifiedModel;
 
 class CrudPanel
 {
-    //TODO:添加权限管理
-//    use Access;
+    use Access;
 
     /**
      * 路由起始名，如，Role.edit 的$route='Role'
@@ -49,12 +48,6 @@ class CrudPanel
     public $saveActions;
 
     /**
-     * 页面内content_header里的描述内容
-     * @var string
-     */
-    public $description;
-
-    /**
      * index页面table的记录是否带有parent_id和list_classes
      * @var bool
      */
@@ -66,11 +59,20 @@ class CrudPanel
      */
     public $viewName = '';
 
-    /* @var BaseClassifiedModel */
+    /** @var BaseClassifiedModel */
     public $model;
+
+    /** @var string */
+    public $modelName;
 
 
     public $request;
+
+    /**
+     * 查询参数 包含key：model,title,columns,maps
+     * @var array
+     */
+    public $queryParams = [];
 
     /**
      * Set the route for this CRUD.
@@ -92,9 +94,9 @@ class CrudPanel
      */
     public function setRouteName($route, $parameters = [])
     {
-        $complete_route = $route.'.index';
+        $complete_route = $route . '.index';
 
-        if (! \Route::has($complete_route)) {
+        if (!\Route::has($complete_route)) {
             throw new \Exception('There are no routes for this route name.', 404);
         }
 
@@ -104,7 +106,7 @@ class CrudPanel
     public function getFullRoute()
     {
         if ($this->routeSuffix != '') {
-            return $this->route.'.'.$this->routeSuffix;
+            return $this->route . '.' . $this->routeSuffix;
         } else {
             return $this->route;
         }
@@ -133,19 +135,20 @@ class CrudPanel
      */
     public function setModel($model_name)
     {
-        if (! class_exists($model_name)) {
-            $model_name = "\\App\\Models\\".$model_name;
-            if (! class_exists($model_name)) {
+        if (!class_exists($model_name)) {
+            $model_name = "\\App\\Models\\" . $model_name;
+            if (!class_exists($model_name)) {
                 throw new \Exception('This model does not exist.', 404);
             }
         }
 
+        $this->modelName = $model_name;
         $this->model = new $model_name();
     }
 
     public function getIndexUrl()
     {
-        return empty($this->indexUrl) ? route($this->getFullRoute().'.index') : $this->indexUrl;
+        return empty($this->indexUrl) ? route($this->getFullRoute() . '.index') : $this->indexUrl;
     }
 
     /**
@@ -154,8 +157,7 @@ class CrudPanel
     public function setPermissionName($permissionName)
     {
         $this->permissionName = $permissionName;
-        return true;
-//        $this->hasAccessOrFail($permissionName);
+        $this->hasAccessOrFail($permissionName);
     }
 
     /**
@@ -163,22 +165,23 @@ class CrudPanel
      */
     public function getNavigator()
     {
-        if(count($this->navigator)==0){
+        if (count($this->navigator) == 0) {
             $this->navigator = [
-                'title'=>$this->title,
-                'subtitle'=>$this->title.'列表',
-                'items'=> [
+                'title'    => $this->title,
+                'subtitle' => $this->title . '列表',
+                'items'    => [
                     [
-                        'title'=>$this->title,
-                        'link'=>route($this->route.'.index')
+                        'title' => $this->title,
+                        'link'  => route($this->route . '.index')
                     ],
                     [
-                        'title'=>'列表',
-                        'link'=>''
+                        'title' => '列表',
+                        'link'  => ''
                     ]
                 ]
             ];
         }
+
         return $this->navigator;
     }
 

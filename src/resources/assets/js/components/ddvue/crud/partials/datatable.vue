@@ -19,8 +19,8 @@
             <el-col :span="24">
                 <el-pagination
                         v-if="paginate"
-                        @size-change="handleSizeChange"
                         @current-change="handleCurrentChange"
+                        @size-change="handleSizeChange"
                         :current-page="currentPage"
                         :page-sizes="pageSizes"
                         :page-size="pageSize"
@@ -68,7 +68,7 @@
                 return '';
             },
             pageSizes: {
-                get () {
+                get() {
                     const that = this;
                     let ps = that.pageSizesOrigin.slice();
 
@@ -89,14 +89,17 @@
         created: function () {
             this.getData();
         },
-        mounted(){
-            const that = this;
-            that.$bus.on('crudListTableDataLoad',that.getData)
+        beforeDestroy() {
+            this.$eventHub.$off('crudListTableDataLoad');
         },
         methods: {
-            getData() {
+            getData(p) {
                 const that = this;
-                that.$http.get(that.dataUrl, that.param).then(function (response) {
+                //在created里面添加事件会一直不停地增加事件
+                that.$eventHub.$off('crudListTableDataLoad');
+                const param = p !== undefined ? that.deepMerge(p, that.param) : that.param;
+
+                that.$http.get(that.dataUrl, param).then(function (response) {
                     const data = response.data;
                     Object.keys(data).forEach(function (key) {
                         if (key === 'total') {
@@ -106,17 +109,19 @@
                     });
                     if (that.total === -1)
                         that.tableData = response.data;
-                    this.$emit('onDataLoad', {
-                        data: that.tableData,
-                        total: that.total
-                    });
                 }).catch(function (response) {
-
+                    console.log(response);
                 });
+                that.$eventHub.$on('crudListTableDataLoad', that.getData)
             },
-            calculatePageSizes() {
-                Array.prototype.push.apply(that.pageSizes, ps);
-                that.pageSizes.splice();
+            deepMerge: function (obj1, obj2) {
+                var key;
+                for (key in obj2) {
+                    // 如果target(也就是obj1[key])存在，且是对象的话再去调用deepMerge，否则就是obj1[key]里面没这个对象，需要与obj2[key]合并
+                    obj1[key] = obj1[key] && obj1[key].toString() === "[object Object]" ?
+                                this.deepMerge(obj1[key], obj2[key]) : obj1[key] = obj2[key];
+                }
+                return obj1;
             },
             handleSelectionChange(val) {
                 this.multipleSelection = val;
@@ -163,11 +168,9 @@
             },
             handleSizeChange(val) {
                 this.pageSize = val;
-                this.getData();
             },
             handleCurrentChange(val) {
                 this.currentPage = val;
-                this.getData();
             }
         }
     }

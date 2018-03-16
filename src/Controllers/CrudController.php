@@ -8,6 +8,8 @@
 
 namespace DDVue\Crud\Controllers;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Http\Request;
@@ -57,6 +59,7 @@ class CrudController extends BaseController
             });
 
             $this->crud->saveActions = $this->getSaveAction();
+            $this->makeQueryParam();
         }
     }
 
@@ -72,52 +75,22 @@ class CrudController extends BaseController
         return view($this->crud->viewName . '.list', $this->data);
     }
 
-    public function makeIndexJson($hasPaginator = false, $useEloquentModel = false)
+    public function makeIndexJson($hasPaginator = false)
     {
-
-        if ($hasPaginator) {
-            if ($useEloquentModel) {
-                $this->data = $this->makePaginatorDataFromEloquent($this->data);
-            } else {
-                $this->data = $this->makePaginatorDataFromCollection($this->data);
-            }
+        if (isset($_GET['searchParams'])) {
+            $param      = json_decode($_GET['searchParams']);
+            $this->data = $this->crud->model->where($param->key, $param->id)->get();
+//            if ($param->key == 'id')
+//                $this->data = collect([$this->data->toArray()]);
+        } else {
+            $this->data = $this->data ?? $this->crud->model->get();
         }
 
-        return json_encode($this->data);
+        return $hasPaginator ?
+            $this->makePaginatorDataFromCollection($this->data) :
+            json_encode($this->data);
     }
 
-    private function makePaginatorDataFromEloquent($data)
-    {
-        // 进行分页
-        if (isset($_GET['page'])) {
-
-            $limit       = $_GET['limit'];
-            $currentPage = $_GET['page'];
-            $offset      = ($currentPage - 1) * $limit;
-
-            Paginator::currentPageResolver(function () use ($currentPage) {
-                return $currentPage;
-            });
-
-
-            $data       = $data->paginate($limit)->toArray();
-            $r          = ['rows' => []];
-            $r['total'] = $data['total'];
-
-            $i = 1;
-
-            // 生成最终数据
-            foreach ($this->data['data'] as $d) {
-                //rowNumber只能在服务器端生成，否则会全部都从1开始
-                $d              = json_decode(json_encode($d), true);
-                $d['rowNumber'] = $offset + $i;
-                $r['rows'][]    = $d;
-                $i++;
-            }
-
-            return $r;
-        }
-    }
 
     private function makePaginatorDataFromCollection(Collection $data)
     {
@@ -153,6 +126,73 @@ class CrudController extends BaseController
         return $data;
     }
 
+    public function makeQueryParam()
+    {
+
+    }
+
+    public function query(Request $request)
+    {
+        $queryString = $request->queryString;
+        $data        = [];
+        foreach ($this->crud->queryParams['groups'] as $param) {
+            /** @var Model $model */
+            $model = app($this->crud->queryParams['model']);
+
+            if (empty($param['join'])) {
+                $model = $model->where($param['columns'][0], 'like', '%' . $queryString . '%');
+                for ($i = 1; $i < count($param['columns']); $i++) {
+                    $model = $model->orWhere($param['columns'][ $i ], 'like', '%' . $queryString . '%');
+                }
+            } else {
+                $model = $model->whereHas($param['join'], function (Builder $query) use ($param, $queryString) {
+                    $query->where($param['columns'][0], 'like', '%' . $queryString . '%');
+                    for ($i = 1; $i < count($param['columns']); $i++) {
+                        $query->orWhere($param['columns'][ $i ], 'like', '%' . $queryString . '%');
+                    }
+                });
+            }
+
+            $d = $model->get()->map(function ($item) use ($param) {
+                $map          = [];
+                $map['group'] = $param['title'];
+                $map['id']    = $item->id;
+                if (empty($param['join'])) {
+                    $map['id']  = $item->id;
+                    $map['key'] = 'id';
+                } else {
+                    $j          = $param['join'];
+                    $map['id']  = $item->$j->id;
+                    $map['key'] = $param['key'];
+                    $item       = $item->$j;
+                }
+
+                foreach ($param['maps'] as $k => $m) {
+                    $a = explode('||', $m);
+                    $v = '';
+                    foreach ($a as $c) {
+                        if ($item->$c) {
+                            $v = $item->$c;
+                            break;
+                        }
+                    }
+                    $map[ $k ] = $v;
+                }
+
+
+                return $map;
+
+            })->unique('id');
+
+            if (count($d)) {
+                $data[] = ['group' => $param['title'], 'items' => $d];
+            }
+
+        }
+
+        return json_encode($data);
+    }
+
     public function getAdd()
     {
         $this->data['crud']  = $this->crud;
@@ -177,15 +217,16 @@ class CrudController extends BaseController
             return json_encode(['success' => true, 'id' => $id]);
         } else {
             return redirect()->to($this->getRedirectUrl())->withInput()->withErrors(['0' => '新建' . $this->crud->title . '时出现错误，请联系管理员'],
-                $this->errorbag());
+                                                                                    $this->errorbag());
         }
     }
 
     public function getEdit($id)
     {
-        $this->data['crud'] = $this->crud;
-        $this->data['edit'] = true;
+        $this->data['crud']  = $this->crud;
+        $this->data['edit']  = true;
         $this->data['title'] = '编辑' . $this->crud->title;
+
         return view($this->crud->viewName . '.store', $this->data);
     }
 
@@ -206,7 +247,7 @@ class CrudController extends BaseController
             return json_encode(['success' => true]);//$this->performSaveAction($id);
         } else {
             return redirect()->to($this->getRedirectUrl())->withInput()->withErrors(['0' => '修改' . $this->crud->title . '信息时出现错误，请联系管理员'],
-                $this->errorbag());
+                                                                                    $this->errorbag());
         }
     }
 
