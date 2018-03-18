@@ -46,7 +46,7 @@ class QueryParam
      * @param array  $columns 需要查询的列名数组
      * @param array  $maps    映射的列，必须含有key为value的项，该项用于前台下拉列表显示。某一项不一定有值时，可以用||隔开的方式定义多列对应
      */
-    public function __construct(string $title, string $join = '', string $key = '', array $columns, array $maps)
+    public function __construct(string $title, array $columns, array $maps, string $join = '', string $key = '')
     {
         $this->title   = $title;
         $this->join    = $join;

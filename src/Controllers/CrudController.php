@@ -127,6 +127,12 @@ class CrudController extends BaseController
         return $data;
     }
 
+    /**
+     * 实现单表和一对一，一对多表（有外键）的查询
+     * @param Request $request
+     *
+     * @return string
+     */
     public function query(Request $request)
     {
         $queryString = $request->queryString;

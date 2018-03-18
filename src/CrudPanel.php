@@ -195,10 +195,15 @@ class CrudPanel
     }
 
     /**
-     * @param QueryParam $param 添加查询参数
+     *
+     * @param string $title   组名，同时也是前台select下拉列表中的group title
+     * @param string $join    需要查询的数据在模型的外联里时设置，默认为空，值要取模型的$with属性内的值
+     * @param string $key     外联的foreign key
+     * @param array  $columns 需要查询的列名数组
+     * @param array  $maps    映射的列，必须含有key为value的项，该项用于前台下拉列表显示。某一项不一定有值时，可以用||隔开的方式定义多列对应
      */
-    public function addQueryParam(QueryParam $param)
+    public function addQueryParam(string $title, array $columns, array $maps, string $join = '', string $key = '')
     {
-        array_push($this->queryParams['groups'], $param);
+        array_push($this->queryParams['groups'], new QueryParam($title, $columns, $maps, $join, $key));
     }
 }
