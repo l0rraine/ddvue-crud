@@ -27,7 +27,7 @@
                 <!--</template>-->
                 <!--</el-autocomplete>-->
                 <el-select
-                        v-model="search" ref="search"
+                        v-model="search" ref="search" class="pull-right"
                         filterable
                         remote
                         clearable
@@ -53,7 +53,7 @@
             </el-col>
             <el-col :span="24" style="margin-top:10px;">
                 <ddv-crud-datatable :dataUrl="tableDataUrl"
-                                    :paginate="showTablepagination"
+                                    :paginate="showTablePagination"
                                     :isRecursive="tableIsRecursive"
                                     @onSelection="handleTableSelectionChange">
                     <slot></slot>
@@ -78,7 +78,7 @@
         },
         props: {
             tableDataUrl: String,
-            showTablepagination: Boolean,
+            showTablePagination: Boolean,
             tableIsRecursive: {
                 type: Boolean,
                 default: false
