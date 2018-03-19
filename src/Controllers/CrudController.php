@@ -255,17 +255,6 @@ class CrudController extends BaseController
         }
     }
 
-    public function getCustomEdit($id)
-    {
-        $this->data['crud'] = $this->crud;
-
-        return view('crud::custom-update', $this->data);
-    }
-
-    public function postCustomEdit($id = null)
-    {
-        return $this->performSaveAction();
-    }
 
     public function del(Request $request)
     {
