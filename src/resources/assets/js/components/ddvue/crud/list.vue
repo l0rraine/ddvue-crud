@@ -73,7 +73,7 @@
                 tableSelection: [],
                 filtered: false,
                 searchResult: [],
-                searchLoading: false
+                searchLoading: false,
             }
         },
         props: {
@@ -94,6 +94,10 @@
             showDelBtn: {
                 type: Boolean,
                 default: true
+            },
+            queryUrl: {
+                type: String,
+                default: ''
             }
 
         },
@@ -143,7 +147,7 @@
                 if (queryString === '') return;
                 const that = this;
                 that.showResetIcon = true;
-                that.$http.post(`${that.getMainUrl()}/query`, {
+                that.$http.post(that.queryUrl || `${that.getMainUrl()}/query`, {
                     queryString: queryString
                 }).then(function (response) {
                     // callback(response.data);

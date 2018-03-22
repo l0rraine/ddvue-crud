@@ -3,28 +3,28 @@
         <el-row>
             <el-col :span="24">
                 <el-table
-                        :data="tableData"
                         ref="multipleTable"
+                        :data="tableData"
                         tooltip-effect="dark"
                         @selection-change="handleSelectionChange"
                         @select="handleSelect"
                         style="width: 100%">
-                    <el-table-column
-                            type="selection"
-                            width="55">
+                    <el-table-column v-if="canSelect"
+                                     type="selection"
+                                     width="55">
                     </el-table-column>
                     <slot></slot>
                 </el-table>
             </el-col>
             <el-col :span="24">
                 <el-pagination
-                        v-if="paginate"
+                        v-show="paginate && showPaginate"
                         @current-change="handleCurrentChange"
                         @size-change="handleSizeChange"
                         :current-page="currentPage"
                         :page-sizes="pageSizes"
                         :page-size="pageSize"
-                        layout="total, sizes, prev, pager, next, jumper"
+                        :layout="layout"
                         :total="total">
                 </el-pagination>
             </el-col>
@@ -41,6 +41,8 @@
                 oldSelection: [],
                 currentPage: 1,
                 total: -1,
+                showPaginate: true,
+                layout: 'total, sizes, prev, pager, next, jumper',
                 pageSize: 10,
                 popSelectEvent: true,
                 pageSizesOrigin: [10, 20, 50],
@@ -53,6 +55,14 @@
             isRecursive: {
                 type: Boolean,
                 default: false
+            },
+            eventName: {
+                type: String,
+                default: 'crudListTableDataLoad'
+            },
+            canSelect: {
+                type: Boolean,
+                default: true
             }
         },
         computed: {
@@ -88,15 +98,20 @@
         },
         created: function () {
             this.getData();
+            this.$emit('onDataLoad', this.tableData);
+
+        },
+        mounted() {
+            this.changeLayout();
         },
         beforeDestroy() {
-            this.$eventHub.$off('crudListTableDataLoad');
+            this.$eventHub.$off(this.eventName);
         },
         methods: {
             getData(p) {
                 const that = this;
                 //在created里面添加事件会一直不停地增加事件
-                that.$eventHub.$off('crudListTableDataLoad');
+                that.$eventHub.$off(that.eventName);
                 const param = p !== undefined ? that.deepMerge(p, that.param) : that.param;
 
                 that.$http.get(that.dataUrl, param).then(function (response) {
@@ -112,7 +127,7 @@
                 }).catch(function (response) {
                     console.log(response);
                 });
-                that.$eventHub.$on('crudListTableDataLoad', that.getData)
+                that.$eventHub.$on(that.eventName, that.getData)
             },
             deepMerge: function (obj1, obj2) {
                 var key;
@@ -168,9 +183,28 @@
             },
             handleSizeChange(val) {
                 this.pageSize = val;
+                this.changeLayout();
             },
             handleCurrentChange(val) {
-                this.currentPage = val;
+                if (this.currentPage !== val) {
+                    this.currentPage = val;
+                    this.getData();
+                }
+
+            },
+            changeLayout() {
+                if (this.total / this.pageSize <= 10) {
+                    if (this.total / this.pageSize <= 1) {
+                        this.showPaginate = false;
+                    } else {
+                        this.showPaginate = true;
+                        this.layout = 'prev, pager, next';
+                    }
+                } else {
+                    this.showPaginate = true;
+                    this.layout = 'total, sizes, prev, pager, next, jumper';
+                }
+                this.$refs['multipleTable'].doLayout();
             }
         }
     }
