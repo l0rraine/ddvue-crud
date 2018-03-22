@@ -66,7 +66,7 @@ class CrudController extends BaseController
     public function setup()
     {
         $this->crud->getNavigator();
-        $this->crud->queryParams['model']  = $this->crud->modelName;
+        $this->crud->queryParams['model'] = $this->crud->modelName;
     }
 
     public function getIndex()
@@ -129,6 +129,7 @@ class CrudController extends BaseController
 
     /**
      * 实现单表和一对一，一对多表（有外键）的查询
+     *
      * @param Request $request
      *
      * @return string
@@ -207,8 +208,8 @@ class CrudController extends BaseController
 
     public function storeCrud(Request $request)
     {
-
-        $data            = $request->all();
+        $this->data      = $this->data ?? $request->all();
+        $data            = $this->data;
         $this->validator = \Validator::make($data, $this->crud->model::rules(), $this->crud->model::messages());
         $this->validator->validate();
 
@@ -230,6 +231,7 @@ class CrudController extends BaseController
         $this->data['crud']  = $this->crud;
         $this->data['edit']  = true;
         $this->data['title'] = '编辑' . $this->crud->title;
+        $this->data['data'] = $this->data['data'] ?? $this->crud->model->find($id);
 
         return view($this->crud->viewName . '.store', $this->data);
     }
