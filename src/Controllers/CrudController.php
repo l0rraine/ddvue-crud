@@ -217,7 +217,7 @@ class CrudController extends BaseController
         $saved = $model->fill($data)->save();
         if ($saved) {
             $id = $model->id;
-            $model->doAfterCU($this->doAfterCrudData);
+            $model->doAfterCU($this->doAfterCrudData ?? $this->data);
 
             return json_encode(['success' => true, 'id' => $id]);
         } else {
@@ -231,7 +231,7 @@ class CrudController extends BaseController
         $this->data['crud']  = $this->crud;
         $this->data['edit']  = true;
         $this->data['title'] = '编辑' . $this->crud->title;
-        $this->data['data'] = $this->data['data'] ?? $this->crud->model->find($id);
+        $this->data['data']  = $this->data['data'] ?? $this->crud->model->find($id);
 
         return view($this->crud->viewName . '.store', $this->data);
     }
@@ -239,7 +239,8 @@ class CrudController extends BaseController
 
     public function updateCrud(Request $request)
     {
-        $data            = $request->all();
+        $this->data      = $this->data ?? $request->all();
+        $data            = $this->data;
         $this->validator = \Validator::make($data, $this->crud->model::rules(), $this->crud->model::messages());
         $this->validator->validate();
 
@@ -248,7 +249,7 @@ class CrudController extends BaseController
         $saved = $model->update($data);
         if ($saved) {
             $id = $model->id;
-            $model->doAfterCU($this->doAfterCrudData);
+            $model->doAfterCU($this->doAfterCrudData ?? $this->data);
 
             return json_encode(['success' => true]);//$this->performSaveAction($id);
         } else {
@@ -260,7 +261,8 @@ class CrudController extends BaseController
 
     public function del(Request $request)
     {
-        $data         = $request->all();
+        $this->data   = $this->data ?? $request->all();
+        $data         = $this->data;
         $success      = true;
         $successCount = 0;
         $failureCount = 0;
