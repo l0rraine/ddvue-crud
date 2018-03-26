@@ -18,7 +18,7 @@
             </el-col>
             <el-col :span="24">
                 <el-pagination
-                        v-show="paginate && showPaginate"
+                        v-show="paginate "
                         @current-change="handleCurrentChange"
                         @size-change="handleSizeChange"
                         :current-page="currentPage"
@@ -41,7 +41,6 @@
                 oldSelection: [],
                 currentPage: 1,
                 total: -1,
-                showPaginate: true,
                 layout: 'total, sizes, prev, pager, next, jumper',
                 pageSize: 10,
                 popSelectEvent: true,
@@ -101,9 +100,6 @@
             this.$emit('onDataLoad', this.tableData);
 
         },
-        mounted() {
-            this.changeLayout();
-        },
         beforeDestroy() {
             this.$eventHub.$off(this.eventName);
         },
@@ -162,7 +158,6 @@
 
                 }
 
-
             },
             handleSelect(selection, row) {
                 if (this.isRecursive) {
@@ -183,28 +178,12 @@
             },
             handleSizeChange(val) {
                 this.pageSize = val;
-                this.changeLayout();
             },
             handleCurrentChange(val) {
                 if (this.currentPage !== val) {
                     this.currentPage = val;
                     this.getData();
                 }
-
-            },
-            changeLayout() {
-                if (this.total / this.pageSize <= 10) {
-                    if (this.total / this.pageSize <= 1) {
-                        this.showPaginate = false;
-                    } else {
-                        this.showPaginate = true;
-                        this.layout = 'prev, pager, next';
-                    }
-                } else {
-                    this.showPaginate = true;
-                    this.layout = 'total, sizes, prev, pager, next, jumper';
-                }
-                this.$refs['multipleTable'].doLayout();
             }
         }
     }
