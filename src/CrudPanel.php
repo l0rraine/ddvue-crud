@@ -5,6 +5,7 @@ namespace DDVue\Crud;
 use DDVue\Crud\app\Models\QueryParam;
 use DDVue\Crud\PanelTraits\Access;
 use DDVue\Crud\app\Models\BaseClassifiedModel;
+use Illuminate\Database\Eloquent\Model;
 
 class CrudPanel
 {
@@ -134,17 +135,33 @@ class CrudPanel
      *
      * @param [string] model namespace. Ex: App\Models\Article or Article
      */
-    public function setModel($model_name)
+
+    /**
+     * 设置模型
+     * 查找不到模型后添加命名空间\App\Models
+     *
+     * @param string|Model $model_name
+     *
+     * @throws \Exception
+     */
+    public function setModel($model)
     {
-        if (!class_exists($model_name)) {
-            $model_name = "\\App\\Models\\" . $model_name;
-            if (!class_exists($model_name)) {
-                throw new \Exception('This model does not exist.', 404);
+        if ($model instanceof Model) {
+            $this->model     = $model;
+            $this->modelName = get_class($model);
+        } else {
+            if (!class_exists($model)) {
+                $model = "\\App\\Models\\" . $model;
+                if (!class_exists($model)) {
+                    throw new \Exception('This model does not exist.', 404);
+                }
             }
+
+            $this->modelName = $model;
+            $this->model     = new $model();
         }
 
-        $this->modelName = $model_name;
-        $this->model     = new $model_name();
+
     }
 
     public function getIndexUrl()

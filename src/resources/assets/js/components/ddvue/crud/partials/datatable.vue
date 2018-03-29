@@ -57,7 +57,7 @@
             },
             eventName: {
                 type: String,
-                default: 'crudListTableDataLoad'
+                default: 'crudListTableChanged'
             },
             canSelect: {
                 type: Boolean,

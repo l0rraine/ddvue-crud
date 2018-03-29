@@ -78,7 +78,10 @@
         },
         props: {
             tableDataUrl: String,
-            showTablePagination: Boolean,
+            showTablePagination: {
+                type: Boolean,
+                default: true
+            },
             tableIsRecursive: {
                 type: Boolean,
                 default: false
@@ -98,7 +101,11 @@
             queryUrl: {
                 type: String,
                 default: ''
-            }
+            },
+            tableEventName: {
+                type: String,
+                default: 'crudListTableChanged'
+            },
 
         },
         watch: {
