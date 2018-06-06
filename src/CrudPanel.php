@@ -217,7 +217,7 @@ class CrudPanel
      * @param string $join    需要查询的数据在模型的外联里时设置，默认为空，值要取模型的$with属性内的值
      * @param string $key     外联的foreign key
      * @param array  $columns 需要查询的列名数组
-     * @param array  $maps    映射的列，必须含有key为value的项，该项用于前台下拉列表显示。某一项不一定有值时，可以用||隔开的方式定义多列对应
+     * @param array  $maps    用于显示的列，必须含有value=>，该项用于前台下拉列表显示。某一项不一定有值时，可以用||隔开的方式定义多列对应
      */
     public function addQueryParam(string $title, array $columns, array $maps, string $join = '', string $key = '')
     {

@@ -1,3 +1,4 @@
+<!--TODO:表格高度设置-->
 <template>
     <div>
         <el-row>
@@ -5,6 +6,8 @@
                 <el-table
                         ref="multipleTable"
                         :data="tableData"
+                        v-loading="loading"
+                        element-loading-text="拼命加载中"
                         tooltip-effect="dark"
                         @selection-change="handleSelectionChange"
                         @select="handleSelect"
@@ -44,7 +47,9 @@
                 layout: 'total, sizes, prev, pager, next, jumper',
                 pageSize: 10,
                 popSelectEvent: true,
-                pageSizesOrigin: [10, 20, 50],
+                pageSizesOrigin: [10, 20, 50, 100],
+                loading: false,
+                queryObject: ''
 
             }
         },
@@ -81,7 +86,8 @@
                     const that = this;
                     let ps = that.pageSizesOrigin.slice();
 
-                    ps.push(that.total);
+                    if (that.total <= 1000)
+                        ps.push(that.total);
                     let i = 0;
 
                     that.pageSizesOrigin.forEach(function (size) {
@@ -108,8 +114,15 @@
                 const that = this;
                 //在created里面添加事件会一直不停地增加事件
                 that.$eventHub.$off(that.eventName);
-                const param = p !== undefined ? that.deepMerge(p, that.param) : that.param;
+                let param = that.param;
+                if ((typeof that.queryObject === "object") && (that.queryObject !== null)) {
+                    param = that.deepMerge(that.queryObject, param);
+                }
+                if (p !== undefined) {
+                    param = that.deepMerge(p, param);
+                }
 
+                that.loading = true;
                 that.$http.get(that.dataUrl, param).then(function (response) {
                     const data = response.data;
                     Object.keys(data).forEach(function (key) {
@@ -122,8 +135,14 @@
                         that.tableData = response.data;
                 }).catch(function (response) {
                     console.log(response);
+                }).finally(() => {
+                    that.loading = false;
                 });
-                that.$eventHub.$on(that.eventName, that.getData)
+                that.$eventHub.$on(that.eventName, function (p) {
+                    that.queryObject = p;
+                    that.currentPage = 1;
+                    that.getData();
+                });
             },
             deepMerge: function (obj1, obj2) {
                 var key;
@@ -169,7 +188,6 @@
                                 isCheck = true;
                             }
                         });
-
                         this.doRecursiveSelect(row, isCheck);
                         this.popSelectEvent = true;
                     }
@@ -178,6 +196,7 @@
             },
             handleSizeChange(val) {
                 this.pageSize = val;
+                this.currentPage = 1;
             },
             handleCurrentChange(val) {
                 if (this.currentPage !== val) {

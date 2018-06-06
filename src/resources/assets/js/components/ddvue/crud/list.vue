@@ -26,18 +26,19 @@
                 <!--class="el-input__icon el-icon-circle-close el-input__clear"></i></a>-->
                 <!--</template>-->
                 <!--</el-autocomplete>-->
-                <el-select
-                        v-model="search" ref="search" class="pull-right"
-                        filterable
-                        remote
-                        clearable
-                        reserve-keyword
-                        placeholder="请输入关键词"
-                        :remote-method="querySearch"
-                        @change="handleSearch"
-                        @focus="onSearchFocus"
-                        @clear="clearQuery"
-                        :loading="searchLoading">
+                <!--TODO: 搜索时直接筛选表格  高级搜索-->
+                <el-select v-if="searchMode=='filter'"
+                           v-model="search" ref="search" class="pull-right"
+                           filterable
+                           remote
+                           clearable
+                           reserve-keyword
+                           placeholder="请输入关键词"
+                           :remote-method="querySearch"
+                           @change="handleSearch"
+                           @focus="onSearchFocus"
+                           @clear="clearQuery"
+                           :loading="searchLoading">
                     <el-option-group ref="resultPopper"
                                      v-for="group in searchResult"
                                      :key="group.group"
@@ -50,10 +51,19 @@
                         </el-option>
                     </el-option-group>
                 </el-select>
+
+                <el-input v-if="searchMode == 'query'"
+                          placeholder="请输入关键词并回车"
+                          v-model="search"
+                          @clear="clearQuery"
+                          @change="handleQuery"
+                          clearable>
+                </el-input>
             </el-col>
             <el-col :span="24" style="margin-top:10px;">
                 <ddv-crud-datatable :dataUrl="tableDataUrl"
                                     :paginate="showTablePagination"
+                                    :canSelect="tableCanSelect"
                                     :isRecursive="tableIsRecursive"
                                     @onSelection="handleTableSelectionChange">
                     <slot></slot>
@@ -73,7 +83,8 @@
                 tableSelection: [],
                 filtered: false,
                 searchResult: [],
-                searchLoading: false,
+                searchLoading: false
+
             }
         },
         props: {
@@ -98,6 +109,10 @@
                 type: Boolean,
                 default: true
             },
+            tableCanSelect: {
+                type: Boolean,
+                default: true
+            },
             queryUrl: {
                 type: String,
                 default: ''
@@ -106,6 +121,10 @@
                 type: String,
                 default: 'crudListTableChanged'
             },
+            searchMode: {
+                type: String,
+                default: 'query' // query or filter
+            }
 
         },
         watch: {
@@ -136,7 +155,7 @@
             handleSearch: function (item) {
                 this.filtered = true;
                 if (item) {//否则事件会触发2次
-                    this.$eventHub.$emit('crudListTableDataLoad', {
+                    this.$eventHub.$emit(this.tableEventName, {
                         params: {
                             searchParams: item
                         }
@@ -154,17 +173,34 @@
                 if (queryString === '') return;
                 const that = this;
                 that.showResetIcon = true;
+                that.searchLoading = true;
                 that.$http.post(that.queryUrl || `${that.getMainUrl()}/query`, {
                     queryString: queryString
                 }).then(function (response) {
                     // callback(response.data);
                     that.searchResult = response.data;
+                }).finally(function () {
+                    that.searchLoading = false;
                 });
+            }, 300),
+            handleQuery: _.debounce(function (queryString) {
+                this.filtered = true;
+                if (queryString) {//否则事件会触发2次
+                    this.$eventHub.$emit(this.tableEventName, {
+                        params: {
+                            searchParams: queryString
+                        }
+                    });
+                }
             }, 300),
             clearQuery: function () {
                 this.searchResult = [];
                 if (this.filtered) {
-                    this.$eventHub.$emit('crudListTableDataLoad');
+                    this.$eventHub.$emit(this.tableEventName, {
+                        params: {
+                            searchParams: ''
+                        }
+                    });
                     this.filtered = false;
                 }
             }

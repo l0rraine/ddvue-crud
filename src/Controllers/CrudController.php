@@ -78,14 +78,58 @@ class CrudController extends BaseController
 
     public function makeIndexJson($hasPaginator = false)
     {
+        $this->data = $this->data ?? $this->crud->model->newQuery();
+
         if (isset($_GET['searchParams'])) {
-            $param      = json_decode($_GET['searchParams']);
-            $this->data = $this->crud->model->where($param->key, $param->id)->get();
+            $param = json_decode($_GET['searchParams']) ?? $_GET['searchParams'];
+            if (is_object($param)) { // 从前台的filter来的
+                $this->data = $this->data->where($param->key, $param->id);
+            } else { // 从前台的search来的
+                $queryString = $param;
+                if ($queryString) {
+                    if (is_array($this->data)) {  // 数组只提供简单搜索
+
+                        $this->data = collect($this->data)->filter(function ($value, $key) use ($queryString) {
+                            $result  = false;
+                            $columns = $this->crud->queryParams['groups'][0]->columns;
+                            foreach ($columns as $p) {
+                                $result = $result || strpos($value[ $p ], $queryString) !== false;
+                            }
+
+                            return $result;
+
+                        });
+                    }
+                    if ($this->data instanceof Builder) {
+                        $sql        = '';
+                        foreach ($this->crud->queryParams['groups'] as $param) {
+                            if (empty($param->join)) {
+                                $sql .= '(' . $param->columns[0] . ' like "%' . $queryString . '%"';
+
+                                for ($i = 1; $i < count($param->columns); $i++) {
+                                    $sql .= ' or ' . $param->columns[ $i ] . ' like "%' . $queryString . '%"';
+                                }
+
+
+                                $this->data = $this->data->whereRaw($sql);
+                            } else {
+                                $this->data = $this->data->orWhereHas($param->join, function (Builder $query) use ($param, $queryString) {
+                                    $query->where($param->columns[0], 'like', '%' . $queryString . '%');
+                                    for ($i = 1; $i < count($param->columns); $i++) {
+                                        $query->orWhere($param->columns[ $i ], 'like', '%' . $queryString . '%');
+                                    }
+                                });
+                            }
+                        }
+                        $this->data = $this->data->whereRaw('id=id )');
+                    }
+
+                }
+            }
 //            if ($param->key == 'id')
 //                $this->data = collect([$this->data->toArray()]);
-        } else {
-            $this->data = $this->data ?? $this->crud->model->get();
         }
+
 
         return $hasPaginator ?
             $this->makePaginatorDataFromCollection($this->data) :
@@ -93,7 +137,7 @@ class CrudController extends BaseController
     }
 
 
-    private function makePaginatorDataFromCollection(Collection $data)
+    private function makePaginatorDataFromCollection(Builder $data)
     {
         if (isset($_GET['page'])) {
 
@@ -105,7 +149,7 @@ class CrudController extends BaseController
             $currentPage = $_GET['page'];
             $offset      = ($currentPage - 1) * $limit;
 
-            $temp = $temp->forPage($currentPage, $limit);
+            $temp = $temp->forPage($currentPage, $limit)->get();
 
 
             $i = 1;
@@ -241,15 +285,20 @@ class CrudController extends BaseController
     {
         $this->data      = $this->data ?? $request->all();
         $data            = $this->data;
-        $this->validator = \Validator::make($data, $this->crud->model::rules(), $this->crud->model::messages());
-        $this->validator->validate();
+        if(method_exists($this->crud->model,'rules')){
+            $this->validator = \Validator::make($data, $this->crud->model::rules(), $this->crud->model::messages());
+            $this->validator->validate();
+        }
+
 
 
         $model = $this->crud->model->find($data['id']);
         $saved = $model->update($data);
         if ($saved) {
             $id = $model->id;
-            $model->doAfterCU($this->doAfterCrudData ?? $this->data);
+            if(method_exists($this->crud->model,'doAfterCU')){
+                $model->doAfterCU($this->doAfterCrudData ?? $this->data);
+            }
 
             return json_encode(['success' => true]);//$this->performSaveAction($id);
         } else {
