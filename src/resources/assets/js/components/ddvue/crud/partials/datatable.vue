@@ -7,6 +7,7 @@
                         ref="multipleTable"
                         :data="tableData"
                         v-loading="loading"
+                        stripe
                         element-loading-text="拼命加载中"
                         tooltip-effect="dark"
                         @selection-change="handleSelectionChange"
@@ -134,7 +135,7 @@
                     if (that.total === -1)
                         that.tableData = response.data;
                 }).catch(function (response) {
-                    console.log(response);
+                    that.tableData = [];
                 }).finally(() => {
                     that.loading = false;
                 });
@@ -197,6 +198,7 @@
             handleSizeChange(val) {
                 this.pageSize = val;
                 this.currentPage = 1;
+                this.getData();
             },
             handleCurrentChange(val) {
                 if (this.currentPage !== val) {
