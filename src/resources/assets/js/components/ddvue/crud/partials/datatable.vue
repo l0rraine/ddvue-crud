@@ -105,8 +105,6 @@
         created: function () {
             this.getData();
             this.$emit('onDataLoad', this.tableData);
-            console.log(this.eventName)
-
         },
         beforeDestroy() {
             this.$eventHub.$off(this.eventName);
@@ -141,7 +139,6 @@
                     that.loading = false;
                 });
                 that.$eventHub.$once(that.eventName, function (p) {
-                    console.log('invoked');
                     that.queryObject = p;
                     that.currentPage = 1;
                     that.getData();
