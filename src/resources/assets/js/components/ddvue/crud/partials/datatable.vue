@@ -22,7 +22,7 @@
             </el-col>
             <el-col :span="24">
                 <el-pagination
-                        v-show="paginate "
+                        v-show="paginate && (total/pageSize>1 && pageSize<=10)"
                         @current-change="handleCurrentChange"
                         @size-change="handleSizeChange"
                         :current-page="currentPage"
@@ -105,6 +105,7 @@
         created: function () {
             this.getData();
             this.$emit('onDataLoad', this.tableData);
+            console.log(this.eventName)
 
         },
         beforeDestroy() {
@@ -139,7 +140,8 @@
                 }).finally(() => {
                     that.loading = false;
                 });
-                that.$eventHub.$on(that.eventName, function (p) {
+                that.$eventHub.$once(that.eventName, function (p) {
+                    console.log('invoked');
                     that.queryObject = p;
                     that.currentPage = 1;
                     that.getData();

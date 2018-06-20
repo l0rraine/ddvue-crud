@@ -9,7 +9,7 @@
                     <slot name="check-toggle"></slot>
                 </div>
                 <div class="fix-slot">
-                    <slot name="fix"></slot>
+                    <slot name="fix-slot"></slot>
                 </div>
 
             </el-col>
@@ -65,6 +65,7 @@
                                     :paginate="showTablePagination"
                                     :canSelect="tableCanSelect"
                                     :isRecursive="tableIsRecursive"
+                                    :eventName="tableEventName"
                                     @onSelection="handleTableSelectionChange">
                     <slot></slot>
                 </ddv-crud-datatable>
@@ -212,11 +213,11 @@
 <style scoped>
     .check-toggle {
         display: inline;
-        margin-left: 10px;
+        /*margin-left: 10px;*/
     }
 
     .fix-slot {
         display: inline;
-        margin-left: 10px;
+        /*margin-left: 10px; */
     }
 </style>
