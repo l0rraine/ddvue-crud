@@ -2,6 +2,7 @@
     <div style="margin-top:10px;">
         <el-row style="margin-bottom: 10px;">
             <el-col :span="18">
+                <div style="min-height: 20px;display:inline-block;"></div>
                 <el-button type="primary" @click="handleExcel" v-if="showImportBtn">导入</el-button>
                 <el-button type="primary" @click="handleAdd" v-if="showAddBtn">新增</el-button>
                 <div class="check-toggle" v-show="showToggle">
@@ -60,7 +61,9 @@
                           clearable>
                 </el-input>
             </el-col>
-            <el-col :span="24" style="margin-top:10px;">
+        </el-row>
+        <el-row>
+            <el-col :span="24" style="margin-bottom:10px;">
                 <ddv-crud-datatable :dataUrl="tableDataUrl"
                                     :paginate="showTablePagination"
                                     :canSelect="tableCanSelect"
