@@ -26,7 +26,7 @@
                         @current-change="handleCurrentChange"
                         @size-change="handleSizeChange"
                         :current-page="currentPage"
-                        :page-sizes="pageSizes"
+                        :page-sizes="pageSizesOrigin"
                         :page-size="pageSize"
                         :layout="layout"
                         :total="total">
@@ -43,7 +43,7 @@
                 tableData: [],
                 multipleSelection: [],
                 oldSelection: [],
-                currentPage: 1,
+                page: 1,
                 total: -1,
                 layout: 'total, sizes, prev, pager, next, jumper',
                 pageSize: 10,
@@ -81,6 +81,14 @@
                     }
                 }
                 return '';
+            },
+            currentPage: {
+                get() {
+                    return this.page;
+                },
+                set(v) {
+                    this.page = v;
+                }
             },
             pageSizes: {
                 get() {
@@ -140,12 +148,12 @@
                 });
                 that.$eventHub.$once(that.eventName, function (p) {
                     that.queryObject = p;
-                    that.currentPage = 1;
+                    that.page = 1;
                     that.getData();
                 });
             },
             deepMerge: function (obj1, obj2) {
-                var key;
+                let key;
                 for (key in obj2) {
                     // 如果target(也就是obj1[key])存在，且是对象的话再去调用deepMerge，否则就是obj1[key]里面没这个对象，需要与obj2[key]合并
                     obj1[key] = obj1[key] && obj1[key].toString() === "[object Object]" ?
@@ -196,12 +204,12 @@
             },
             handleSizeChange(val) {
                 this.pageSize = val;
-                this.currentPage = 1;
+                this.page = 1;
                 this.getData();
             },
             handleCurrentChange(val) {
                 if (this.currentPage !== val) {
-                    this.currentPage = val;
+                    this.page = val;
                     this.getData();
                 }
             }
