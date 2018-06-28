@@ -148,7 +148,9 @@
                 });
                 that.$eventHub.$once(that.eventName, function (p) {
                     that.queryObject = p;
-                    that.page = 1;
+                    if((typeof that.queryObject === "object") && (that.queryObject !== null)){
+                        that.page = 1;
+                    }
                     that.getData();
                 });
             },
