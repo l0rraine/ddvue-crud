@@ -132,12 +132,12 @@ class CrudController extends BaseController
 
 
         return $hasPaginator ?
-            $this->makePaginatorDataFromCollection($this->data) :
+            $this->makePaginatorDataFromBuilder($this->data) :
             json_encode($this->data);
     }
 
 
-    private function makePaginatorDataFromCollection(Builder $data)
+    private function makePaginatorDataFromBuilder(Builder $data)
     {
         if (isset($_GET['page'])) {
 
