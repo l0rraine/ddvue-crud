@@ -265,8 +265,9 @@ class CrudController extends BaseController
 
             return json_encode(['success' => true, 'id' => $id]);
         } else {
-            return redirect()->to($this->getRedirectUrl())->withInput()->withErrors(['0' => '新建' . $this->crud->title . '时出现错误，请联系管理员'],
-                                                                                    $this->errorbag());
+            abort(401, '新建' . $this->crud->title . '时出现错误，请联系管理员');
+//            return redirect()->to($this->getRedirectUrl())->withInput()->withErrors(['0' => '新建' . $this->crud->title . '时出现错误，请联系管理员'],
+//                                                                                    $this->errorbag());
         }
     }
 
@@ -302,8 +303,9 @@ class CrudController extends BaseController
 
             return json_encode(['success' => true]);//$this->performSaveAction($id);
         } else {
-            return redirect()->to($this->getRedirectUrl())->withInput()->withErrors(['0' => '修改' . $this->crud->title . '信息时出现错误，请联系管理员'],
-                                                                                    $this->errorbag());
+            abort(401, '修改' . $this->crud->title . '时出现错误，请联系管理员');
+//            return redirect()->to($this->getRedirectUrl())->withInput()->withErrors(['0' => '修改' . $this->crud->title . '信息时出现错误，请联系管理员'],
+//                                                                                    $this->errorbag());
         }
     }
 
