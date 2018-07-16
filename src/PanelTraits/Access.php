@@ -26,7 +26,7 @@ trait Access
      */
     public function hasAccessOrFail()
     {
-        if (! empty($this->permissionName) && \Auth::user()->can($this->permissionName)) {
+        if (! empty($this->permissionName) && \Auth::user()->hasAnyPermission($this->permissionName)) {
 
         }else{
             abort(403, '无访问权限');
