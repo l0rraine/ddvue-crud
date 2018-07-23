@@ -32,6 +32,15 @@ import DdvCrudList from './components/ddvue/crud/list.vue';
 Vue.component(DdvCrudList.name, DdvCrudList);
 
 
+import DdvAutocomplete from './components/ddvue/crud/partials/autocomplete.vue';
+
+Vue.component(DdvAutocomplete.name, DdvAutocomplete);
+
+import DdvAutocompleteDropdownItem from './components/ddvue/crud/partials/autocomplete-dropdown-item.vue';
+
+Vue.component(DdvAutocompleteDropdownItem.name, DdvAutocompleteDropdownItem);
+
+
 import DdvDatatableRecursiveTitle from './components/ddvue/crud/partials/datatable-recursive-title.vue';
 
 Vue.component(DdvDatatableRecursiveTitle.name, DdvDatatableRecursiveTitle);

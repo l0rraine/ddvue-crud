@@ -29,7 +29,7 @@ trait Access
         if (! empty($this->permissionName) && \Auth::user()->hasAnyPermission($this->permissionName)) {
 
         }else{
-            abort(403, '无访问权限');
+            abort(401, '无访问权限');
         }
     }
 }
