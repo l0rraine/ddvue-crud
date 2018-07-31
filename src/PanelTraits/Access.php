@@ -19,17 +19,18 @@ trait Access
     /**
      * Check if a permission is enabled for a Crud Panel. Fail if not.
      *
-     * @param  [string] Permission.
-     * @param string $permission
+     * @param string|array $permission
      *
      * @return bool|null
      */
-    public function hasAccessOrFail()
+    public function hasAccessOrFail($permission)
     {
-        if (! empty($this->permissionName) && \Auth::user()->hasAnyPermission($this->permissionName)) {
-
-        }else{
-            abort(401, '无访问权限');
+        if (!empty($permission)) {
+            if (!\Auth::user()->hasAnyPermission($permission)) {
+                abort(401, '无访问权限');
+            }
         }
+
+        return true;
     }
 }
