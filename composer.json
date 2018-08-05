@@ -8,7 +8,6 @@
             "email": "idn.lee@gmail.com"
         }
     ],
-    "minimum-stability": "dev",
     "require": {
         "laravelcollective/html": "^5.4",
         "stevenyangecho/laravel-u-editor": "^1.4"
@@ -16,6 +15,13 @@
     "autoload": {
         "psr-4": {
             "DDVue\\Crud\\": "src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "DDVue\\Crud\\CrudServiceProvider"
+            ]
         }
     }
 }
