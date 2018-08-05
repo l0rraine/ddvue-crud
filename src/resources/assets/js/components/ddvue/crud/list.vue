@@ -2,7 +2,7 @@
     <div style="margin-top:10px;">
         <el-row style="margin-bottom: 10px;">
             <el-col :span="18">
-                <!--<div style="min-height: 20px;display:inline-block;"></div>-->
+                <div style="min-height: 20px;display:inline-block;"></div>
                 <el-button type="primary" @click="handleExcel" v-if="showImportBtn">导入</el-button>
                 <el-button type="primary" @click="handleAdd" v-if="showAddBtn">新增</el-button>
                 <div class="check-toggle" v-show="showToggle">
@@ -69,6 +69,8 @@
                                     :canSelect="tableCanSelect"
                                     :isRecursive="tableIsRecursive"
                                     :eventName="tableEventName"
+                                    :rowClassName="tableRowClassName"
+                                    :cellClassName="tableCellClassName"
                                     @onSelection="handleTableSelectionChange">
                     <slot></slot>
                 </ddv-crud-datatable>
@@ -116,6 +118,14 @@
             tableCanSelect: {
                 type: Boolean,
                 default: true
+            },
+            tableCellClassName: {
+                type: String,
+                default: ''
+            },
+            tableRowClassName: {
+                type: String,
+                default: ''
             },
             queryUrl: {
                 type: String,
@@ -216,7 +226,7 @@
 <style scoped>
     .check-toggle {
         display: inline;
-        /*margin-left: 10px;*/
+        margin-left: 10px;
     }
 
     .fix-slot {

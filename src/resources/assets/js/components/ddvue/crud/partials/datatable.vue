@@ -7,7 +7,8 @@
                         ref="multipleTable"
                         :data="tableData"
                         v-loading="loading"
-                        stripe
+                        :row-class-name="rowClassName"
+                        :cell-class-name="cellClassName"
                         element-loading-text="拼命加载中"
                         tooltip-effect="dark"
                         @selection-change="handleSelectionChange"
@@ -15,7 +16,7 @@
                         style="width: 100%">
                     <el-table-column v-if="canSelect"
                                      type="selection"
-                                     width="55">
+                                     width="40">
                     </el-table-column>
                     <slot></slot>
                 </el-table>
@@ -68,6 +69,14 @@
             canSelect: {
                 type: Boolean,
                 default: true
+            },
+            cellClassName: {
+                type: String,
+                default: ''
+            },
+            rowClassName: {
+                type: String,
+                default: ''
             }
         },
         computed: {
@@ -148,7 +157,7 @@
                 });
                 that.$eventHub.$once(that.eventName, function (p) {
                     that.queryObject = p;
-                    if((typeof that.queryObject === "object") && (that.queryObject !== null)){
+                    if ((typeof that.queryObject === "object") && (that.queryObject !== null)) {
                         that.page = 1;
                     }
                     that.getData();
@@ -218,3 +227,10 @@
         }
     }
 </script>
+<style>
+    .el-table-column--selection .cell {
+        padding-left: 4px;
+        padding-right: 4px;
+        padding-top:8px;
+    }
+</style>
