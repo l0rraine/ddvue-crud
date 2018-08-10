@@ -121,7 +121,6 @@
         },
         created: function () {
             this.getData();
-            this.$emit('onDataLoad', this.tableData);
         },
         beforeDestroy() {
             this.$eventHub.$off(this.eventName);
@@ -154,6 +153,7 @@
                     that.tableData = [];
                 }).finally(() => {
                     that.loading = false;
+                    that.$emit('onDataLoad', that.tableData );
                 });
                 that.$eventHub.$once(that.eventName, function (p) {
                     that.queryObject = p;
@@ -162,6 +162,7 @@
                     }
                     that.getData();
                 });
+
             },
             deepMerge: function (obj1, obj2) {
                 let key;

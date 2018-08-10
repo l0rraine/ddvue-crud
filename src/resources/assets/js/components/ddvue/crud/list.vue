@@ -63,6 +63,11 @@
             </el-col>
         </el-row>
         <el-row>
+            <div>
+                <slot name="extra-line"></slot>
+            </div>
+        </el-row>
+        <el-row>
             <el-col :span="24" style="margin-bottom:10px;">
                 <ddv-crud-datatable :dataUrl="tableDataUrl"
                                     :paginate="showTablePagination"
@@ -71,6 +76,7 @@
                                     :eventName="tableEventName"
                                     :rowClassName="tableRowClassName"
                                     :cellClassName="tableCellClassName"
+                                    @onDataLoad="handleTableLoad"
                                     @onSelection="handleTableSelectionChange">
                     <slot></slot>
                 </ddv-crud-datatable>
@@ -162,6 +168,9 @@
 
                 this.$emit('onTableSelectionChange', val);
 
+            },
+            handleTableLoad(data) {
+                this.$emit('onTableDataLoad', data);
             },
             handleExcel: function () {
                 this.$emit('onImport');
