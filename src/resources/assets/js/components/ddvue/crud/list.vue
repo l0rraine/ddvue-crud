@@ -74,6 +74,7 @@
                                     :canSelect="tableCanSelect"
                                     :isRecursive="tableIsRecursive"
                                     :eventName="tableEventName"
+                                    :maxHeight="tableMaxHeight"
                                     :rowClassName="tableRowClassName"
                                     :cellClassName="tableCellClassName"
                                     @onDataLoad="handleTableLoad"
@@ -140,6 +141,9 @@
             tableEventName: {
                 type: String,
                 default: 'crudListTableChanged'
+            },
+            tableMaxHeight: {
+                type: Number
             },
             searchMode: {
                 type: String,

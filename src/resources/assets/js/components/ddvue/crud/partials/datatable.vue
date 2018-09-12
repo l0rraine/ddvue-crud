@@ -13,6 +13,7 @@
                         tooltip-effect="dark"
                         @selection-change="handleSelectionChange"
                         @select="handleSelect"
+                        :max-height="maxH"
                         style="width: 100%">
                     <el-table-column v-if="canSelect"
                                      type="selection"
@@ -23,7 +24,7 @@
             </el-col>
             <el-col :span="24">
                 <el-pagination
-                        v-show="paginate && (total/pageSize>1 && pageSize<=10)"
+                        v-show="paginate && (total/pageSize>1)"
                         @current-change="handleCurrentChange"
                         @size-change="handleSizeChange"
                         :current-page="currentPage"
@@ -52,7 +53,6 @@
                 pageSizesOrigin: [10, 20, 50, 100],
                 loading: false,
                 queryObject: ''
-
             }
         },
         props: {
@@ -77,6 +77,9 @@
             rowClassName: {
                 type: String,
                 default: ''
+            },
+            maxHeight: {
+                type: Number
             }
         },
         computed: {
@@ -117,6 +120,12 @@
                     });
                     return ps;
                 }
+            },
+
+            maxH: {
+                get() {
+                    return this.maxHeight || window.config.main_height - 150 || 700;
+                }
             }
         },
         created: function () {
@@ -153,7 +162,7 @@
                     that.tableData = [];
                 }).finally(() => {
                     that.loading = false;
-                    that.$emit('onDataLoad', that.tableData );
+                    that.$emit('onDataLoad', that.tableData);
                 });
                 that.$eventHub.$once(that.eventName, function (p) {
                     that.queryObject = p;
@@ -232,6 +241,6 @@
     .el-table-column--selection .cell {
         padding-left: 4px;
         padding-right: 4px;
-        padding-top:8px;
+        padding-top: 8px;
     }
 </style>
