@@ -169,6 +169,7 @@ class CrudController extends BaseController
         }
         $data = $this->beforeSendIndexJson($data);
 
+
         return $data;
     }
 
