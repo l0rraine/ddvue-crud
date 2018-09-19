@@ -101,7 +101,7 @@ class CrudController extends BaseController
                         });
                     }
                     if ($this->data instanceof Builder) {
-                        $sql        = '';
+                        $sql = '';
                         foreach ($this->crud->queryParams['groups'] as $param) {
                             if (empty($param->join)) {
                                 $sql .= '(' . $param->columns[0] . ' like "%' . $queryString . '%"';
@@ -167,7 +167,14 @@ class CrudController extends BaseController
             $data['total'] = $total;
 
         }
+        $data = $this->beforeSendIndexJson($data);
 
+
+        return $data;
+    }
+
+    protected function beforeSendIndexJson($data)
+    {
         return $data;
     }
 
@@ -284,20 +291,19 @@ class CrudController extends BaseController
 
     public function updateCrud(Request $request)
     {
-        $this->data      = $this->data ?? $request->all();
-        $data            = $this->data;
-        if(method_exists($this->crud->model,'rules')){
+        $this->data = $this->data ?? $request->all();
+        $data       = $this->data;
+        if (method_exists($this->crud->model, 'rules')) {
             $this->validator = \Validator::make($data, $this->crud->model::rules(), $this->crud->model::messages());
             $this->validator->validate();
         }
-
 
 
         $model = $this->crud->model->find($data['id']);
         $saved = $model->update($data);
         if ($saved) {
             $id = $model->id;
-            if(method_exists($this->crud->model,'doAfterCU')){
+            if (method_exists($this->crud->model, 'doAfterCU')) {
                 $model->doAfterCU($this->doAfterCrudData ?? $this->data);
             }
 
