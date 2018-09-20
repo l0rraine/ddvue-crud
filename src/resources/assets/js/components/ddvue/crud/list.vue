@@ -63,14 +63,21 @@
             </el-col>
         </el-row>
         <el-row>
+            <div>
+                <slot name="extra-line"></slot>
+            </div>
+        </el-row>
+        <el-row>
             <el-col :span="24" style="margin-bottom:10px;">
                 <ddv-crud-datatable :dataUrl="tableDataUrl"
                                     :paginate="showTablePagination"
                                     :canSelect="tableCanSelect"
                                     :isRecursive="tableIsRecursive"
                                     :eventName="tableEventName"
+                                    :maxHeight="tableMaxHeight"
                                     :rowClassName="tableRowClassName"
                                     :cellClassName="tableCellClassName"
+                                    @onDataLoad="handleTableLoad"
                                     @onSelection="handleTableSelectionChange">
                     <slot></slot>
                 </ddv-crud-datatable>
@@ -135,6 +142,9 @@
                 type: String,
                 default: 'crudListTableChanged'
             },
+            tableMaxHeight: {
+                type: Number
+            },
             searchMode: {
                 type: String,
                 default: 'query' // query or filter
@@ -162,6 +172,9 @@
 
                 this.$emit('onTableSelectionChange', val);
 
+            },
+            handleTableLoad(data) {
+                this.$emit('onTableDataLoad', data);
             },
             handleExcel: function () {
                 this.$emit('onImport');
