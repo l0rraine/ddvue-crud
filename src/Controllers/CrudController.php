@@ -325,7 +325,6 @@ class CrudController extends BaseController
         $failureCount = 0;
         $failId       = [];
         foreach ($data as $id) {
-
             try {
                 if ($this->crud->model->find($id)->delete()) {
                     $this->crud->model->doAfterD($id);
