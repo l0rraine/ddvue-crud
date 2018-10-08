@@ -130,6 +130,9 @@ class CrudController extends BaseController
 //                $this->data = collect([$this->data->toArray()]);
         }
 
+        if (get_class($this->data) == 'Illuminate\Database\Eloquent\Builder') {
+            $this->data = $this->data->get();
+        }
 
         return $hasPaginator ?
             $this->makePaginatorDataFromBuilder($this->data) :
@@ -137,7 +140,7 @@ class CrudController extends BaseController
     }
 
 
-    private function makePaginatorDataFromBuilder(Builder $data)
+    private function makePaginatorDataFromBuilder(Collection $data)
     {
         if (isset($_GET['page'])) {
 
@@ -149,7 +152,7 @@ class CrudController extends BaseController
             $currentPage = $_GET['page'];
             $offset      = ($currentPage - 1) * $limit;
 
-            $temp = $temp->forPage($currentPage, $limit)->get();
+            $temp = $temp->forPage($currentPage, $limit);
 
 
             $i = 1;

@@ -165,11 +165,12 @@
                     that.$emit('onDataLoad', that.tableData);
                 });
                 that.$eventHub.$once(that.eventName, function (p) {
-                    that.queryObject = p;
-                    if ((typeof that.queryObject === "object") && (that.queryObject !== null)) {
-                        that.page = 1;
-                    }
-                    that.getData();
+                    // 待测试
+                    // that.queryObject = p;
+                    // if ((typeof that.queryObject === "object") && (that.queryObject !== null)) {
+                    //     that.page = 1;
+                    // }
+                    that.getData(p);
                 });
 
             },
