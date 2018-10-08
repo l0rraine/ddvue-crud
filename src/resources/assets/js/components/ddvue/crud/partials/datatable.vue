@@ -169,7 +169,7 @@
                 that.$eventHub.$once(that.eventName, function (p) {
                     that.queryObject = p;
                     if ((typeof that.queryObject === "object") && (that.queryObject !== null)) {
-                        that.page = p.page || 1;
+                        that.page = p.params.page || that.page;
                     }
                     that.getData();
                 });
