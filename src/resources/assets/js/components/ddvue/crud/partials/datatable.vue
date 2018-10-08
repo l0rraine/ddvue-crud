@@ -150,13 +150,15 @@
                 that.loading = true;
                 that.$http.get(that.dataUrl, param).then(function (response) {
                     const data = response.data;
+                    let isPaged = false;
                     Object.keys(data).forEach(function (key) {
                         if (key === 'total') {
+                            isPaged = true;
                             that.tableData = data['rows'];
                             that.total = data['total'];
                         }
                     });
-                    if (that.total === -1)
+                    if (that.total === -1 || !isPaged)
                         that.tableData = response.data;
                 }).catch(function (response) {
                     that.tableData = [];
@@ -165,12 +167,11 @@
                     that.$emit('onDataLoad', that.tableData);
                 });
                 that.$eventHub.$once(that.eventName, function (p) {
-                    // 待测试
-                    // that.queryObject = p;
-                    // if ((typeof that.queryObject === "object") && (that.queryObject !== null)) {
-                    //     that.page = 1;
-                    // }
-                    that.getData(p);
+                    that.queryObject = p;
+                    if ((typeof that.queryObject === "object") && (that.queryObject !== null)) {
+                        that.page = p.page || 1;
+                    }
+                    that.getData();
                 });
 
             },
