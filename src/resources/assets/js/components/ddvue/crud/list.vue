@@ -184,6 +184,7 @@
                 if (item) {//否则事件会触发2次
                     this.$eventHub.$emit(this.tableEventName, {
                         params: {
+                            page: 1,
                             searchParams: item
                         }
                     });
@@ -215,6 +216,7 @@
                 if (queryString) {//否则事件会触发2次
                     this.$eventHub.$emit(this.tableEventName, {
                         params: {
+                            page: 1,
                             searchParams: queryString
                         }
                     });
