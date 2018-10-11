@@ -13,8 +13,7 @@
                         tooltip-effect="dark"
                         @selection-change="handleSelectionChange"
                         @select="handleSelect"
-                        :max-height="maxH"
-                        style="width: 100%">
+                        :max-height="maxH">
                     <el-table-column v-if="canSelect"
                                      type="selection"
                                      width="40">
