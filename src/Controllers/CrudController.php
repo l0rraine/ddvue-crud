@@ -130,7 +130,7 @@ class CrudController extends BaseController
 //                $this->data = collect([$this->data->toArray()]);
         }
 
-        if (get_class($this->data) == 'Illuminate\Database\Eloquent\Builder') {
+        if (!is_array($this->data) && get_class($this->data) == 'Illuminate\Database\Eloquent\Builder') {
             $this->data = $this->data->get();
         }
 
