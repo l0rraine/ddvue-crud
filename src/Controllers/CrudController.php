@@ -138,21 +138,21 @@ class CrudController extends BaseController
                 $filtered = false;
                 if (!is_array($filters))
                     return $query;
-                foreach ($filters as $k => $v) {
-                    $filter = collect($v)->reject(function ($v, $k) {
-                        return $v == null;
+                foreach ($filters as $k => $filter) {
+                    $not_null_filter = collect($filter)->reject(function ($v) {
+                        return $v === null;
                     });
-                    if (count($filter)) {
+                    if (count($not_null_filter)) {
                         if (!$filtered) {
                             $filtered = true;
-                            $query    = $query->whereIn($k, $filter);
+                            $query    = $query->whereIn($k, $not_null_filter);
                         } else {
-                            $query = $query->orWhereIn($k, $filter);
+                            $query = $query->orWhereIn($k, $not_null_filter);
                         }
 
                     }
 
-                    if (collect($v)->contains(null)) {
+                    if (collect($filter)->contains(null)) {
                         if (!$filtered) {
                             $filtered = true;
                             $query    = $query->whereNull($k);

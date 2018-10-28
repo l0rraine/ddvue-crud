@@ -193,6 +193,7 @@
                 this.$emit('onSelection', val);
             },
             handleFilterChange(filters) {
+                this.currentPage = 1;
                 this.filterObject = {
                     params: {
                         filter: filters
