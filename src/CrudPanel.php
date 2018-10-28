@@ -183,22 +183,20 @@ class CrudPanel
      */
     public function getNavigator()
     {
-        if (count($this->navigator) == 0) {
-            $this->navigator = [
-                'title'    => $this->title,
-                'subtitle' => $this->title . '列表',
-                'items'    => [
-                    [
-                        'title' => $this->title,
-                        'link'  => route($this->route . '.index')
-                    ],
-                    [
-                        'title' => '列表',
-                        'link'  => ''
-                    ]
+        $this->navigator = [
+            'title'    => $this->title,
+            'subtitle' => $this->title . '列表',
+            'items'    => [
+                [
+                    'title' => $this->title,
+                    'link'  => route($this->route . '.index')
+                ],
+                [
+                    'title' => '列表',
+                    'link'  => ''
                 ]
-            ];
-        }
+            ]
+        ];
 
         return $this->navigator;
     }

@@ -13,8 +13,8 @@
                         tooltip-effect="dark"
                         @selection-change="handleSelectionChange"
                         @select="handleSelect"
-                        :max-height="maxH"
-                        style="width: 100%">
+                        @filter-change="handleFilterChange"
+                        :max-height="maxH">
                     <el-table-column v-if="canSelect"
                                      type="selection"
                                      width="40">
@@ -52,7 +52,8 @@
                 popSelectEvent: true,
                 pageSizesOrigin: [10, 20, 50, 100],
                 loading: false,
-                queryObject: ''
+                queryObject: '',
+                filterObject: ''
             }
         },
         props: {
@@ -143,6 +144,9 @@
                 if ((typeof that.queryObject === "object") && (that.queryObject !== null)) {
                     param = that.deepMerge(that.queryObject, param);
                 }
+                if ((typeof that.filterObject === "object") && (that.filterObject !== null)) {
+                    param = that.deepMerge(that.filterObject, param);
+                }
                 if (p !== undefined) {
                     param = that.deepMerge(p, param);
                 }
@@ -187,6 +191,14 @@
             handleSelectionChange(val) {
                 this.multipleSelection = val;
                 this.$emit('onSelection', val);
+            },
+            handleFilterChange(filters) {
+                this.filterObject = {
+                    params: {
+                        filter: filters
+                    }
+                };
+                this.getData();
             },
             doRecursiveSelect(row, isCheck) {
                 const that  = this,

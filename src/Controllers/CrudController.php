@@ -130,17 +130,62 @@ class CrudController extends BaseController
 //                $this->data = collect([$this->data->toArray()]);
         }
 
-        if (!is_array($this->data) && get_class($this->data) == 'Illuminate\Database\Eloquent\Builder') {
-            $this->data = $this->data->get();
+        if (isset($_GET['filter'])) {
+
+            $filters = json_decode(($_GET['filter']), true);
+
+            $this->data = $this->data->where(function ($query) use ($filters) {
+                $filtered = false;
+                if (!is_array($filters))
+                    return $query;
+                foreach ($filters as $k => $v) {
+                    $filter = collect($v)->reject(function ($v, $k) {
+                        return $v == null;
+                    });
+                    if (count($filter)) {
+                        if (!$filtered) {
+                            $filtered = true;
+                            $query    = $query->whereIn($k, $filter);
+                        } else {
+                            $query = $query->orWhereIn($k, $filter);
+                        }
+
+                    }
+
+                    if (collect($v)->contains(null)) {
+                        if (!$filtered) {
+                            $filtered = true;
+                            $query    = $query->whereNull($k);
+                        } else {
+                            $query = $query->orWhereNull($k);
+                        }
+
+                    }
+                    $query->orderBy($k);
+
+                }
+
+                return $query;
+            });
+
+        }
+
+        if (is_array($this->data)) {
+            $this->data = collect($this->data);
+
         }
 
         return $hasPaginator ?
-            $this->makePaginatorDataFromBuilder($this->data) :
+            $this->makePaginatorData($this->data) :
             json_encode($this->data);
     }
 
-
-    private function makePaginatorDataFromBuilder(Collection $data)
+    /**
+     * @param mixed $data
+     *
+     * @return array|Collection
+     */
+    private function makePaginatorData($data)
     {
         if (isset($_GET['page'])) {
 
@@ -152,7 +197,11 @@ class CrudController extends BaseController
             $currentPage = $_GET['page'];
             $offset      = ($currentPage - 1) * $limit;
 
-            $temp = $temp->forPage($currentPage, $limit);
+            if (get_class($temp) == 'Illuminate\Database\Eloquent\Builder') {
+                $temp = $temp->forPage($currentPage, $limit)->get();
+            } else if ($temp instanceof Collection) {
+                $temp = $temp->forPage($currentPage, $limit);
+            }
 
 
             $i = 1;
