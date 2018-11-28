@@ -189,7 +189,7 @@ class CrudPanel
             'items'    => [
                 [
                     'title' => $this->title,
-                    'link'  => route($this->route . '.index')
+                    'link'  => $this->getIndexUrl()
                 ],
                 [
                     'title' => '列表',
