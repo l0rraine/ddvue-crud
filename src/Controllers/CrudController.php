@@ -239,7 +239,7 @@ class CrudController extends BaseController
      */
     public function query(Request $request)
     {
-        $queryString = $request->queryString;
+        $queryString = request('queryString');
         $data        = [];
         foreach ($this->crud->queryParams['groups'] as $param) {
             /** @var QueryParam $param */
@@ -247,19 +247,22 @@ class CrudController extends BaseController
             /** @var Model $model */
             $model = app($this->crud->queryParams['model']);
 
-            if (empty($param->join)) {
-                $model = $model->where($param->columns[0], 'like', '%' . $queryString . '%');
-                for ($i = 1; $i < count($param->columns); $i++) {
-                    $model = $model->orWhere($param->columns[ $i ], 'like', '%' . $queryString . '%');
-                }
-            } else {
-                $model = $model->whereHas($param->join, function (Builder $query) use ($param, $queryString) {
-                    $query->where($param->columns[0], 'like', '%' . $queryString . '%');
+            if(is_string($queryString)){
+                if (empty($param->join)) {
+                    $model = $model->where($param->columns[0], 'like', '%' . $queryString . '%');
                     for ($i = 1; $i < count($param->columns); $i++) {
-                        $query->orWhere($param->columns[ $i ], 'like', '%' . $queryString . '%');
+                        $model = $model->orWhere($param->columns[ $i ], 'like', '%' . $queryString . '%');
                     }
-                });
+                } else {
+                    $model = $model->whereHas($param->join, function (Builder $query) use ($param, $queryString) {
+                        $query->where($param->columns[0], 'like', '%' . $queryString . '%');
+                        for ($i = 1; $i < count($param->columns); $i++) {
+                            $query->orWhere($param->columns[ $i ], 'like', '%' . $queryString . '%');
+                        }
+                    });
+                }
             }
+
 
             $d = $model->get()->map(function ($item) use ($param) {
                 $map          = [];
