@@ -101,18 +101,27 @@ class CrudController extends BaseController
                         });
                     }
                     if ($this->data instanceof Builder) {
-                        $sql = '';
-                        foreach ($this->crud->queryParams['groups'] as $param) {
-                            if (empty($param->join)) {
+                        $this->data=$this->data->whereRaw('1=0');
+                        $no_join_params = collect($this->crud->queryParams['groups'])->where('join', '');
+                        if ($no_join_params->count()) {
+                            $sql = '';
+                            foreach ($no_join_params as $param) {
                                 $sql .= '(' . $param->columns[0] . ' like "%' . $queryString . '%"';
 
                                 for ($i = 1; $i < count($param->columns); $i++) {
                                     $sql .= ' or ' . $param->columns[ $i ] . ' like "%' . $queryString . '%"';
                                 }
+                                $this->data = $this->data->orWhereRaw($sql);
 
+                            }
+                            $this->data = $this->data->whereRaw('1=1 )');
+                        }
 
-                                $this->data = $this->data->whereRaw($sql);
-                            } else {
+                        $join_params = collect($this->crud->queryParams['groups'])->where('join', '!=', '');
+
+                        if ($join_params->count()) {
+                            $this->data = $this->data->orWhereRaw('( 1=0');
+                            foreach ($join_params as $param) {
                                 $this->data = $this->data->orWhereHas($param->join, function (Builder $query) use ($param, $queryString) {
                                     $query->where($param->columns[0], 'like', '%' . $queryString . '%');
                                     for ($i = 1; $i < count($param->columns); $i++) {
@@ -120,8 +129,8 @@ class CrudController extends BaseController
                                     }
                                 });
                             }
+                            $this->data = $this->data->orWhereRaw('1=0 )');
                         }
-                        $this->data = $this->data->whereRaw('id=id )');
                     }
 
                 }
