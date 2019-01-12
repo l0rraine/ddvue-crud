@@ -147,21 +147,21 @@ class CrudController extends BaseController
                 $filtered = false;
                 if (!is_array($filters))
                     return $query;
-                foreach ($filters as $k => $v) {
-                    $filter = collect($v)->reject(function ($v, $k) {
-                        return $v == null;
+                foreach ($filters as $k => $filter) {
+                    $not_null_filter = collect($filter)->reject(function ($v) {
+                        return $v === null;
                     });
-                    if (count($filter)) {
+                    if (count($not_null_filter)) {
                         if (!$filtered) {
                             $filtered = true;
-                            $query    = $query->whereIn($k, $filter);
+                            $query    = $query->whereIn($k, $not_null_filter);
                         } else {
-                            $query = $query->orWhereIn($k, $filter);
+                            $query = $query->orWhereIn($k, $not_null_filter);
                         }
 
                     }
 
-                    if (collect($v)->contains(null)) {
+                    if (collect($filter)->contains(null)) {
                         if (!$filtered) {
                             $filtered = true;
                             $query    = $query->whereNull($k);
@@ -248,7 +248,7 @@ class CrudController extends BaseController
      */
     public function query(Request $request)
     {
-        $queryString = $request->queryString;
+        $queryString = request('queryString');
         $data        = [];
         foreach ($this->crud->queryParams['groups'] as $param) {
             /** @var QueryParam $param */
@@ -256,19 +256,22 @@ class CrudController extends BaseController
             /** @var Model $model */
             $model = app($this->crud->queryParams['model']);
 
-            if (empty($param->join)) {
-                $model = $model->where($param->columns[0], 'like', '%' . $queryString . '%');
-                for ($i = 1; $i < count($param->columns); $i++) {
-                    $model = $model->orWhere($param->columns[ $i ], 'like', '%' . $queryString . '%');
-                }
-            } else {
-                $model = $model->whereHas($param->join, function (Builder $query) use ($param, $queryString) {
-                    $query->where($param->columns[0], 'like', '%' . $queryString . '%');
+            if(is_string($queryString)){
+                if (empty($param->join)) {
+                    $model = $model->where($param->columns[0], 'like', '%' . $queryString . '%');
                     for ($i = 1; $i < count($param->columns); $i++) {
-                        $query->orWhere($param->columns[ $i ], 'like', '%' . $queryString . '%');
+                        $model = $model->orWhere($param->columns[ $i ], 'like', '%' . $queryString . '%');
                     }
-                });
+                } else {
+                    $model = $model->whereHas($param->join, function (Builder $query) use ($param, $queryString) {
+                        $query->where($param->columns[0], 'like', '%' . $queryString . '%');
+                        for ($i = 1; $i < count($param->columns); $i++) {
+                            $query->orWhere($param->columns[ $i ], 'like', '%' . $queryString . '%');
+                        }
+                    });
+                }
             }
+
 
             $d = $model->get()->map(function ($item) use ($param) {
                 $map          = [];
