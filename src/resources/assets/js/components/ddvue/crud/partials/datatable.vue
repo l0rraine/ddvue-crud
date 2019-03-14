@@ -129,7 +129,7 @@
                 }
             }
         },
-        created: function () {
+        mounted: function () {
             this.getData();
         },
         beforeDestroy() {
