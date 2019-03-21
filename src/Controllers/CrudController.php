@@ -9,14 +9,13 @@
 namespace DDVue\Crud\Controllers;
 
 use DDVue\Crud\app\Models\QueryParam;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Pagination\Paginator;
-use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use DDVue\Crud\Controllers\Features\SaveActions;
 use DDVue\Crud\CrudPanel;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Collection;
 
 
 class CrudController extends BaseController
@@ -101,7 +100,7 @@ class CrudController extends BaseController
                         });
                     }
                     if ($this->data instanceof Builder) {
-                        $this->data=$this->data->whereRaw('1=0');
+                        $this->data     = $this->data->whereRaw('1=0');
                         $no_join_params = collect($this->crud->queryParams['groups'])->where('join', '');
                         if ($no_join_params->count()) {
                             $sql = '';
@@ -256,7 +255,7 @@ class CrudController extends BaseController
             /** @var Model $model */
             $model = app($this->crud->queryParams['model']);
 
-            if(is_string($queryString)){
+            if (is_string($queryString)) {
                 if (empty($param->join)) {
                     $model = $model->where($param->columns[0], 'like', '%' . $queryString . '%');
                     for ($i = 1; $i < count($param->columns); $i++) {
@@ -331,7 +330,8 @@ class CrudController extends BaseController
         $model = $this->crud->model->newInstance();
         $saved = $model->fill($data)->save();
         if ($saved) {
-            $id = $model->id;
+            $id               = $model->id;
+            $this->data['id'] = $id;
             $model->doAfterCU($this->doAfterCrudData ?? $this->data);
 
             return json_encode(['success' => true, 'id' => $id]);
