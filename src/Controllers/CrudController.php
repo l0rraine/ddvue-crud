@@ -331,7 +331,7 @@ class CrudController extends BaseController
         $saved = $model->fill($data)->save();
         if ($saved) {
             $id               = $model->id;
-            $this->data['id'] = $id;
+            $this->data['crud_id'] = $id;
             $model->doAfterCU($this->doAfterCrudData ?? $this->data);
 
             return json_encode(['success' => true, 'id' => $id]);
