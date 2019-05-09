@@ -100,26 +100,11 @@ class CrudController extends BaseController
                         });
                     }
                     if ($this->data instanceof Builder) {
-                        $this->data     = $this->data->whereRaw('1=0');
-                        $no_join_params = collect($this->crud->queryParams['groups'])->where('join', '');
-                        if ($no_join_params->count()) {
-                            $sql = '';
-                            foreach ($no_join_params as $param) {
-                                $sql .= '(' . $param->columns[0] . ' like "%' . $queryString . '%"';
-
-                                for ($i = 1; $i < count($param->columns); $i++) {
-                                    $sql .= ' or ' . $param->columns[ $i ] . ' like "%' . $queryString . '%"';
-                                }
-                                $this->data = $this->data->orWhereRaw($sql);
-
-                            }
-                            $this->data = $this->data->whereRaw('1=1 )');
-                        }
 
                         $join_params = collect($this->crud->queryParams['groups'])->where('join', '!=', '');
 
                         if ($join_params->count()) {
-                            $this->data = $this->data->orWhereRaw('( 1=0');
+                            $this->data = $this->data->WhereRaw('(1=0');
                             foreach ($join_params as $param) {
                                 $this->data = $this->data->orWhereHas($param->join, function (Builder $query) use ($param, $queryString) {
                                     $query->where($param->columns[0], 'like', '%' . $queryString . '%');
@@ -128,8 +113,26 @@ class CrudController extends BaseController
                                     }
                                 });
                             }
-                            $this->data = $this->data->orWhereRaw('1=0 )');
+                            $this->data = $this->data->OrWhereRaw(' 1=0)');
                         }
+
+
+                        $no_join_params = collect($this->crud->queryParams['groups'])->where('join', '');
+                        if ($no_join_params->count()) {
+                            $sql = '(1=0 or ';
+                            foreach ($no_join_params as $param) {
+                                $sql .= $param->columns[0] . ' like "%' . $queryString . '%"';
+
+                                for ($i = 1; $i < count($param->columns); $i++) {
+                                    $sql .= ' or ' . $param->columns[ $i ] . ' like "%' . $queryString . '%"';
+                                }
+
+                            }
+                            $sql        = $sql . ')';
+                            $this->data = $this->data->OrWhereRaw($sql);
+                        }
+
+
                     }
 
                 }
@@ -330,7 +333,7 @@ class CrudController extends BaseController
         $model = $this->crud->model->newInstance();
         $saved = $model->fill($data)->save();
         if ($saved) {
-            $id               = $model->id;
+            $id                    = $model->id;
             $this->data['crud_id'] = $id;
             $model->doAfterCU($this->doAfterCrudData ?? $this->data);
 
