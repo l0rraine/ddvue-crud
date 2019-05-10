@@ -151,27 +151,45 @@ class CrudController extends BaseController
                     return $query;
                 foreach ($filters as $k => $filter) {
                     $not_null_filter = collect($filter)->reject(function ($v) {
-                        return $v === null;
+                        return $v == 'null';
                     });
-                    if (count($not_null_filter)) {
-                        if (!$filtered) {
-                            $filtered = true;
-                            $query    = $query->whereIn($k, $not_null_filter);
-                        } else {
-                            $query = $query->orWhereIn($k, $not_null_filter);
+
+                    if (count($filter) > 1) { // 多个筛选条件
+                        if (count($not_null_filter)) {
+                            if (!$filtered) {
+                                $filtered = true;
+                                $query    = $query->whereRaw('1=0 ');
+                                $query    = $query->orWhereIn($k, $not_null_filter);
+                            } else {
+                                $query = $query->orWhereIn($k, $not_null_filter);
+                            }
+
+                            $query = $query->orWhereRaw('1=0');
                         }
+                        if (collect($filter)->contains('null')) {
+                            if (!$filtered) {
+                                $filtered = true;
+                                $query    = $query->whereNull($k);
+                            } else {
+                                $query = $query->orWhereNull($k);
+                            }
+
+                        }
+                    } else {// 单个筛选
+                        if(count($filter)>0){
+                            if ($filter[0] == 'not null') {
+                                $query = $query->whereNotNull($k);
+                            } else if ($filter[0] == 'null') {
+                                $query = $query->whereNull($k);
+                            } else {
+                                $query = $query->where($k, $filter[0]);
+                            }
+                        }
+
 
                     }
 
-                    if (collect($filter)->contains(null)) {
-                        if (!$filtered) {
-                            $filtered = true;
-                            $query    = $query->whereNull($k);
-                        } else {
-                            $query = $query->orWhereNull($k);
-                        }
 
-                    }
                     $query->orderBy($k);
 
                 }

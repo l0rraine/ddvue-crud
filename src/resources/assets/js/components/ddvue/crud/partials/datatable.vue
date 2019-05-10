@@ -4,6 +4,7 @@
         <el-row>
             <el-col :span="24">
                 <el-table
+                        row-key="id"
                         ref="multipleTable"
                         :data="tableData"
                         v-loading="loading"
@@ -11,6 +12,7 @@
                         :cell-class-name="cellClassName"
                         element-loading-text="拼命加载中"
                         tooltip-effect="dark"
+                        :reserve-selection="true"
                         @selection-change="handleSelectionChange"
                         @select="handleSelect"
                         @filter-change="handleFilterChange"
@@ -154,6 +156,7 @@
                 that.loading = true;
                 that.$http.get(that.dataUrl, param).then(function (response) {
                     const data = response.data;
+                    console.log(data)
                     let isPaged = false;
                     Object.keys(data).forEach(function (key) {
                         if (key === 'total') {
