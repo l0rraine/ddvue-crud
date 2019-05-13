@@ -113,7 +113,7 @@ class CrudController extends BaseController
                                     }
                                 });
                             }
-                            $this->data = $this->data->OrWhereRaw(' 1=0)');
+                            $this->data = $this->data->OrWhereRaw(' 1=0');
                         }
 
 
@@ -128,7 +128,9 @@ class CrudController extends BaseController
                                 }
 
                             }
-                            $sql        = $sql . ')';
+                            $sql = $sql . ')';
+                            if ($join_params->count())
+                                $sql = $sql . ')';
                             $this->data = $this->data->OrWhereRaw($sql);
                         }
 
@@ -176,7 +178,7 @@ class CrudController extends BaseController
 
                         }
                     } else {// 单个筛选
-                        if(count($filter)>0){
+                        if (count($filter) > 0) {
                             if ($filter[0] == 'not null') {
                                 $query = $query->whereNotNull($k);
                             } else if ($filter[0] == 'null') {
