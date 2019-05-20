@@ -101,26 +101,11 @@ class CrudController extends BaseController
                         });
                     }
                     if ($this->data instanceof Builder) {
-                        $this->data     = $this->data->whereRaw('1=0');
-                        $no_join_params = collect($this->crud->queryParams['groups'])->where('join', '');
-                        if ($no_join_params->count()) {
-                            $sql = '';
-                            foreach ($no_join_params as $param) {
-                                $sql .= '(' . $param->columns[0] . ' like "%' . $queryString . '%"';
-
-                                for ($i = 1; $i < count($param->columns); $i++) {
-                                    $sql .= ' or ' . $param->columns[ $i ] . ' like "%' . $queryString . '%"';
-                                }
-                                $this->data = $this->data->orWhereRaw($sql);
-
-                            }
-                            $this->data = $this->data->whereRaw('1=1 )');
-                        }
 
                         $join_params = collect($this->crud->queryParams['groups'])->where('join', '!=', '');
 
                         if ($join_params->count()) {
-                            $this->data = $this->data->orWhereRaw('( 1=0');
+                            $this->data = $this->data->WhereRaw('(1=0');
                             foreach ($join_params as $param) {
                                 $this->data = $this->data->orWhereHas($param->join, function (Builder $query) use ($param, $queryString) {
                                     $query->where($param->columns[0], 'like', '%' . $queryString . '%');
@@ -129,8 +114,28 @@ class CrudController extends BaseController
                                     }
                                 });
                             }
-                            $this->data = $this->data->orWhereRaw('1=0 )');
+                            $this->data = $this->data->OrWhereRaw(' 1=0');
                         }
+
+
+                        $no_join_params = collect($this->crud->queryParams['groups'])->where('join', '');
+                        if ($no_join_params->count()) {
+                            $sql = '(1=0 or ';
+                            foreach ($no_join_params as $param) {
+                                $sql .= $param->columns[0] . ' like "%' . $queryString . '%"';
+
+                                for ($i = 1; $i < count($param->columns); $i++) {
+                                    $sql .= ' or ' . $param->columns[ $i ] . ' like "%' . $queryString . '%"';
+                                }
+
+                            }
+                            $sql = $sql . ')';
+                            if ($join_params->count())
+                                $sql = $sql . ')';
+                            $this->data = $this->data->OrWhereRaw($sql);
+                        }
+
+
                     }
 
                 }
@@ -149,27 +154,45 @@ class CrudController extends BaseController
                     return $query;
                 foreach ($filters as $k => $filter) {
                     $not_null_filter = collect($filter)->reject(function ($v) {
-                        return $v === null;
+                        return $v == 'null';
                     });
-                    if (count($not_null_filter)) {
-                        if (!$filtered) {
-                            $filtered = true;
-                            $query    = $query->whereIn($k, $not_null_filter);
-                        } else {
-                            $query = $query->orWhereIn($k, $not_null_filter);
+
+                    if (count($filter) > 1) { // 多个筛选条件
+                        if (count($not_null_filter)) {
+                            if (!$filtered) {
+                                $filtered = true;
+                                $query    = $query->whereRaw('1=0 ');
+                                $query    = $query->orWhereIn($k, $not_null_filter);
+                            } else {
+                                $query = $query->orWhereIn($k, $not_null_filter);
+                            }
+
+                            $query = $query->orWhereRaw('1=0');
                         }
+                        if (collect($filter)->contains('null')) {
+                            if (!$filtered) {
+                                $filtered = true;
+                                $query    = $query->whereNull($k);
+                            } else {
+                                $query = $query->orWhereNull($k);
+                            }
+
+                        }
+                    } else {// 单个筛选
+                        if (count($filter) > 0) {
+                            if ($filter[0] == 'not null') {
+                                $query = $query->whereNotNull($k);
+                            } else if ($filter[0] == 'null') {
+                                $query = $query->whereNull($k);
+                            } else {
+                                $query = $query->where($k, $filter[0]);
+                            }
+                        }
+
 
                     }
 
-                    if (collect($filter)->contains(null)) {
-                        if (!$filtered) {
-                            $filtered = true;
-                            $query    = $query->whereNull($k);
-                        } else {
-                            $query = $query->orWhereNull($k);
-                        }
 
-                    }
                     $query->orderBy($k);
 
                 }
