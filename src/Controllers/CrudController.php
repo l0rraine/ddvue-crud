@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 
 class CrudController extends BaseController
@@ -330,7 +331,7 @@ class CrudController extends BaseController
         $model = $this->crud->model->newInstance();
         $saved = $model->fill($data)->save();
         if ($saved) {
-            $id               = $model->id;
+            $id                    = $model->id;
             $this->data['crud_id'] = $id;
             $model->doAfterCU($this->doAfterCrudData ?? $this->data);
 
@@ -416,4 +417,21 @@ class CrudController extends BaseController
 
         return json_encode(['success' => $success, 'message' => $message]);
     }
+
+    public function changeField($id, $field, $value)
+    {
+        DB::beginTransaction();
+        try {
+            $model = $this->crud->model->find($id);
+            $model->update([$field => $value]);
+            DB::commit();
+
+            return json_encode(['success' => true, 'message' => '修改成功']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            abort(500, '修改失败');
+        }
+
+    }
+
 }

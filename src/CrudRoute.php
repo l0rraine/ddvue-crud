@@ -21,7 +21,7 @@ class CrudRoute
      * @param string $name_prefix 路由名前缀
      * @param array  $urls        想要生成的路由列表
      */
-    public static function make($url_prefix, $action, $name_prefix, $urls = ['index' => 1, 'indexJson' => 1, 'query' => 1, 'add' => 1, 'add.post' => 1, 'edit' => 1, 'edit.post' => 1, 'del' => 1])
+    public static function make($url_prefix, $action, $name_prefix, $urls = ['index' => 1, 'indexJson' => 1, 'query' => 1, 'add' => 1, 'add.post' => 1, 'edit' => 1, 'edit.post' => 1, 'del' => 1, 'status' => 1])
     {
 
         if (isset($urls['index']) && $urls['index'] > 0) {
@@ -47,6 +47,9 @@ class CrudRoute
         }
         if (isset($urls['del']) && $urls['del'] > 0) {
             Route::post($url_prefix . '/del', $action . '@del')->name($name_prefix . '.del');
+        }
+        if (isset($urls['status']) && $urls['status'] > 0) {
+            Route::post($url_prefix . '/{id}/status/{field}/{value}', $action . '@changeField')->name($name_prefix . '.status');
         }
     }
 
