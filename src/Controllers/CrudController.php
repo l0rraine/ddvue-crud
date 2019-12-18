@@ -217,7 +217,7 @@ class CrudController extends BaseController
      *
      * @return array|Collection
      */
-    private function makePaginatorData($data)
+    protected function makePaginatorData($data)
     {
         if (isset($_GET['page'])) {
 
