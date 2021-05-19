@@ -2,15 +2,16 @@
     <div style="margin-top:10px;">
         <el-row style="margin-bottom: 10px;">
             <el-col :span="18">
-                <el-button type="primary" @click="handleExcel" v-if="showImportBtn">导入</el-button>
-                <el-button type="primary" @click="handleAdd" v-if="showAddBtn">新增</el-button>
+                <div class="fix-slot">
+                    <el-button type="primary" @click="handleExcel" v-if="showImportBtn">导入</el-button>
+                    <el-button type="primary" @click="handleAdd" v-if="showAddBtn">新增</el-button>
+                    <slot name="fix-slot"></slot>
+                </div>
                 <div class="check-toggle" v-show="showToggle">
                     <el-button type="danger" @click="handleDelete" v-if="showDelBtn">删除</el-button>
                     <slot name="check-toggle"></slot>
                 </div>
-                <div class="fix-slot">
-                    <slot name="fix-slot"></slot>
-                </div>
+
 
             </el-col>
             <el-col :span="6">
