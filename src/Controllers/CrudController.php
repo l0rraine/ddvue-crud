@@ -348,7 +348,7 @@ class CrudController extends BaseController
     {
         $this->data      = $this->data ?? $request->all();
         $data            = $this->data;
-        $this->validator = \Validator::make($data, $this->crud->model::rules(), $this->crud->model::messages());
+        $this->validator = \Validator::make($data, $this->crud->model::rules(), $this->crud->model->messages());
         $this->validator->validate();
 
         $model = $this->crud->model->newInstance();
@@ -382,7 +382,7 @@ class CrudController extends BaseController
         $this->data = $this->data ?? $request->all();
         $data       = $this->data;
         if (method_exists($this->crud->model, 'rules')) {
-            $this->validator = \Validator::make($data, $this->crud->model::rules(), $this->crud->model::messages());
+            $this->validator = \Validator::make($data, $this->crud->model::rules(), $this->crud->model->messages());
             $this->validator->validate();
         }
 

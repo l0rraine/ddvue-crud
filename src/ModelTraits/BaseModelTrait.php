@@ -24,7 +24,7 @@ trait BaseModelTrait
      * @param int $id
      * @param array $merge
      */
-    public static function messages($id = 0, $merge = []){
+    public function messages($id = 0, $merge = []){
         return [];
     }
 
